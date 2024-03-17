@@ -6,11 +6,24 @@
     <title>Creative Coding - Project1</title>
 </head>
 <body>
-    <canvas width = "600"></canvas>
+    <canvas width="600" height="600"></canvas> 
 
     <script>
-        let theCanvas = document.querySelector('canvas');
-        let context = canvas.getContext('2d');
+        let theCanvas = document.querySelector('canvas'); // Select an element within the document, in this case, 'canvas' on line5
+        let context = theCanvas.getContext('2d'); // You get a theCanvas object call a function as part of it called '.getContext' and pass the parameter as a string -- this is where you actually do the drawing (in 2D or 3D)
+
+        context.fillStyle = 'blue';
+        context.fillRect(100, 100, 400, 400);
+        context.lineWidth = 4;
+
+        context.beginPath();
+        context.rect(100, 100, 400, 400);
+        context.stroke();
+
+        context.beginPath();
+        context.arc(300, 300, 100, 0, Math.PI * 2);
+        context.stroke();
+
     </script>
 </body>
 </html>
