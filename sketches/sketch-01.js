@@ -8,7 +8,8 @@ const settings = {
 
 const sketch = () => { // A function returning a no-named function which is called by the library itself
   return ({ context, width, height }) => {
-    context.fillStyle = 'white';
+    context.fillStyle = 'black';
+    context.strokeStyle = 'white';
     context.fillRect(0, 0, width, height); // Lines 9-10 draws a big, white rectangle as a background for the canvas
     context.lineWidth = width * 0.01;
 
@@ -16,9 +17,9 @@ const sketch = () => { // A function returning a no-named function which is call
     // Declaring variables:
     const w   = width * 0.10;
     const h   = height * 0.10;
-    const gap = width * 0.03;
-    const ix  = width * 0.17;
-    const iy  = height * 0.17;
+    const gap = width * 0.05;
+    const ix  = width * 0.16;
+    const iy  = height * 0.16;
 
     const off = width * 0.02;
 
@@ -45,5 +46,3 @@ const sketch = () => { // A function returning a no-named function which is call
 };
 
 canvasSketch(sketch, settings); // Here you are calling the library and passing (1) the sketch function and settings as parameters
-
-// Server running at http://192.168.1.108:9966/
