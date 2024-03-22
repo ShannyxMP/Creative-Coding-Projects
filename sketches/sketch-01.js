@@ -9,12 +9,12 @@ const settings = {
 const sketch = () => { // A function returning a no-named function which is called by the library itself
   return ({ context, width, height }) => {    
     // Black canvas
-    context.fillRect(0, 0, width, height); // Draws a big, white rectangle as a background for the canvas
+    context.fillRect(0, 0, width, height); // Draws a big, rectangle as a background for the canvas
     context.fillStyle = 'black';
     
     // Gradient
     const gradientOuter = context.createLinearGradient(0, 0, width, height)
-    gradientOuter.addColorStop(0.25, '#57C5B6'); 
+    gradientOuter.addColorStop(0.25, '#57C5B6'); // The duplicates will create obvious colour transitioning
     gradientOuter.addColorStop(0.25, '#159895');
     gradientOuter.addColorStop(0.5, '#159895');
     gradientOuter.addColorStop(0.5, '#1A5F7A');
@@ -36,9 +36,11 @@ const sketch = () => { // A function returning a no-named function which is call
             x = ix + (w + gap) * i;
             y = iy + (h + gap) * j;
             
+            // Characteristics
             context.strokeStyle = gradientOuter;
             context.shadowBlur = 0; // To remove glow from square grid
             context.lineWidth = width * 0.01;
+            
             context.beginPath();
             context.rect(x, y, w, h);
             context.stroke();
@@ -48,12 +50,14 @@ const sketch = () => { // A function returning a no-named function which is call
             
             // Randomises where smaller squares appear
             if (Math.random() > 0.5) {
+                // Characteristics
                 context.lineWidth = width * 0.005;
                 context.strokeStyle = '#F5F3C1';
                 context.shadowColor = 'pink';
                 context.shadowBlur = 10;
                 context.shadowOffsetX = 0;
                 context.shadowOffsetY = 0;
+
                 context.beginPath();
                 context.rect(x + (off * 1.5), y + (off * 1.5), w - (off * 3), h - (off * 3));
                 context.stroke();
