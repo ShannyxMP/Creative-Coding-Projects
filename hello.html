@@ -9,22 +9,22 @@
     <canvas width="600" height="600"></canvas> 
 
     <script>
-        let theCanvas = document.querySelector('canvas'); // Select an element within the document, in this case, 'canvas' on line5
+        let theCanvas = document.querySelector('canvas'); // Select an element within the document, in this case, 'canvas' on line9
         let context = theCanvas.getContext('2d'); // You get a theCanvas object call a function as part of it called '.getContext' and pass the parameter as a string -- this is where you actually do the drawing (in 2D or 3D)
 
         // Declaring thickness of lines
         context.lineWidth = 4;
 
         // Creating a large base square
-        context.fillStyle = 'pink';
+        context.fillStyle = 'grey';
         context.fillRect(100, 100, 400, 400);
 
-        // Creating a large outlined square
+        // Overlay a large outlined square
         context.beginPath();
         context.rect(100, 100, 400, 400);
         context.stroke();
 
-        // Creating circle within square
+        // Creating circle in the middle
         context.beginPath();
         context.arc(300, 300, 100, 0, Math.PI * 2);
         context.stroke();
@@ -38,8 +38,8 @@
         
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 5; j++) {
-                x = 100 + (width + gap) * i;
-                y = 100 + (height + gap) * j;
+                x = 110 + (width + gap) * i;
+                y = 110 + (height + gap) * j;
 
                 context.beginPath();
                 context.rect(x, y, width, height);
