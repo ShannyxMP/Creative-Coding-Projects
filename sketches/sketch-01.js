@@ -10,10 +10,9 @@ const sketch = () => { // A function returning a no-named function which is call
   return ({ context, width, height }) => {
     context.fillStyle = 'white';
     context.strokeStyle = 'black';
-    context.fillRect(0, 0, width, height); // Lines 9-10 draws a big, white rectangle as a background for the canvas
+    context.fillRect(0, 0, width, height); // Draws a big, white rectangle as a background for the canvas
     context.lineWidth = width * 0.01;
 
-    // Creating smaller square grid
     // Declaring variables:
     const w   = width * 0.10;
     const h   = height * 0.10;
@@ -21,10 +20,9 @@ const sketch = () => { // A function returning a no-named function which is call
     const ix  = width * 0.16;
     const iy  = height * 0.16;
 
-    const off = width * 0.02;
-
     let x, y; 
     
+    // Creating square grid
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
             x = ix + (w + gap) * i;
@@ -34,6 +32,10 @@ const sketch = () => { // A function returning a no-named function which is call
             context.rect(x, y, w, h);
             context.stroke();
 
+            // Creating even smaller squares within grid
+            const off = width * 0.02;
+
+            // Randomises where smaller squares appear
             if (Math.random() > 0.5) {
                 context.beginPath();
                 context.rect(x + (off / 2), y + (off / 2), w - off, h - off);
@@ -45,4 +47,4 @@ const sketch = () => { // A function returning a no-named function which is call
   };
 };
 
-canvasSketch(sketch, settings); // Here you are calling the library and passing (1) the sketch function and settings as parameters
+canvasSketch(sketch, settings); // Here you are calling the library and passing two things: (1) the sketch function and (2) settings as parameters
