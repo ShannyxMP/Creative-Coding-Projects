@@ -1,16 +1,14 @@
-const canvasSketch = require('canvas-sketch'); // Retrieving the canvas library
+const canvasSketch = require('canvas-sketch');
 
 const settings = {
-  dimensions: [ 1080, 1080 ], // Dimensions are in pixels ALTERNATIVELY you can say 'A4'
-  // pixelsPerInch: 300, To adjust pixel density if in 'A4' dimensions
-  // orientation: 'landscape' if in 'A4' dimensions
+  dimensions: [ 1080, 1080 ],
 };
 
-const sketch = () => { // A function returning a no-named function which is called by the library itself
+const sketch = () => { 
   return ({ context, width, height }) => {
     context.fillStyle = 'black';
     context.strokeStyle = 'white';
-    context.fillRect(0, 0, width, height); // Draws a big, white rectangle as a background for the canvas
+    context.fillRect(0, 0, width, height); // Draws a big, black rectangle as a background for the canvas
     context.lineWidth = width * 0.01;
 
     // Declaring variables:
