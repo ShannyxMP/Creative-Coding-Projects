@@ -8,8 +8,8 @@ const settings = {
 
 const sketch = () => { // A function returning a no-named function which is called by the library itself
   return ({ context, width, height }) => {
-    context.fillStyle = 'white';
-    context.strokeStyle = 'black';
+    context.fillStyle = 'black';
+    context.strokeStyle = 'white';
     context.fillRect(0, 0, width, height); // Draws a big, white rectangle as a background for the canvas
     context.lineWidth = width * 0.01;
 
