@@ -1,34 +1,49 @@
-const canvasSketch = require('canvas-sketch');
+const canvasSketch = require("canvas-sketch");
 
 const settings = {
-  dimensions: [ 1080, 1080 ]
+  dimensions: [1080, 1080],
 };
 
-const degToRad = (degrees) => { // Converting number - representing *degrees* - into *radians*
-  return degrees / 180 * Math.PI; 
-}
+const degToRad = (degrees) => {
+  // Converting number - representing *degrees* - into *radians*
+  return (degrees / 180) * Math.PI;
+};
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = 'white';
+    context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
-    context.fillStyle = 'black';
+    context.fillStyle = "black";
 
-    const x = width  * 0.5;
-    const y = height * 0.5;
-    const w = width  * 0.3;
-    const h = height * 0.3;
+    const cx = width * 0.5; // Represent the center of the canvas
+    const cy = height * 0.5;
 
-    context.save();
-    context.translate(x, y);
-    context.rotate(degToRad(45));
+    const w = width * 0.01;
+    const h = height * 0.1;
+    let x, y; // These variables will be modified in the loop
 
-    context.beginPath();
-    context.rect((-w * 0.5), (-h * 0.5), w, h);
-    context.fill();
-    context.restore();
+    const num = 12;
+    const radius = width * 0.3; // Radius of the circle on which the rectangles will be placed
 
+    for (let i = 0; i < num; i++) {
+      const slice = degToRad(360 / num); // Calculates angle of each slice, then converts to radians
+      const angle = slice * i; // = incrementing each slice to appear at 30, 60, 90, etc.
+
+      x = cx + radius * Math.sin(angle);
+      y = cy + radius * Math.cos(angle);
+      /* Alternatively you can remove cx and cy from lines directly above, and add an additional 
+      context.translate(cx, cy) below */
+
+      context.save();
+      context.translate(x, y);
+      context.rotate(-angle);
+
+      context.beginPath();
+      context.rect(-w * 0.5, -h * 0.5, w, h);
+      context.fill();
+      context.restore();
+    }
   };
 };
 
