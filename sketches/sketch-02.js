@@ -27,7 +27,7 @@ const sketch = () => {
     const h = height * 0.1;
     let x, y; // These variables will be modified in the loop
 
-    const num = 12;
+    const num = 40;
     const radius = width * 0.3; // Radius of the circle on which the rectangles will be placed
 
     for (let i = 0; i < num; i++) {
@@ -42,11 +42,28 @@ const sketch = () => {
       context.save();
       context.translate(x, y);
       context.rotate(-angle);
-      context.scale(random.range(1, 3), 1);
+      context.scale(random.range(0.1, 2), random.range(0.2, 0.5)); // Modifiable
 
       context.beginPath();
-      context.rect(-w * 0.5, -h * 0.5, w, h);
+      context.rect(-w * 0.5, random.range(0, h * 0.5), w, h); // Modifiable
       context.fill();
+      context.restore();
+
+      context.save();
+      context.translate(cx, cy);
+      context.rotate(-angle); // Why do we need another rotate transformation here?
+
+      context.lineWidth = random.range(5, 20); // Modifiable arcs
+
+      context.beginPath();
+      context.arc(
+        0,
+        0,
+        radius * random.range(0.7, 1.3), // ALTERNATIVELY: random.range(radius * 0.7, radius * 1.3)
+        slice * random.range(1, -8),
+        slice * random.range(1, 5)
+      ); // Modifiable
+      context.stroke();
       context.restore();
     }
   };
