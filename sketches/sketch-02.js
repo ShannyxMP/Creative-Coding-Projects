@@ -1,13 +1,17 @@
 const canvasSketch = require("canvas-sketch");
+const math = require("canvas-sketch-util/math");
+const random = require("canvas-sketch-util/random");
 
 const settings = {
   dimensions: [1080, 1080],
 };
 
+/* NO LONGER NEEDED AS YOU HAVE INTEGRATED canvas-sketch-util LIBRARY
 const degToRad = (degrees) => {
   // Converting number - representing *degrees* - into *radians*
   return (degrees / 180) * Math.PI;
 };
+*/
 
 const sketch = () => {
   return ({ context, width, height }) => {
@@ -27,7 +31,7 @@ const sketch = () => {
     const radius = width * 0.3; // Radius of the circle on which the rectangles will be placed
 
     for (let i = 0; i < num; i++) {
-      const slice = degToRad(360 / num); // Calculates angle of each slice, then converts to radians
+      const slice = math.degToRad(360 / num); // Calculates angle of each slice, then converts to radians
       const angle = slice * i; // = incrementing each slice to appear at 30, 60, 90, etc.
 
       x = cx + radius * Math.sin(angle);
@@ -38,6 +42,7 @@ const sketch = () => {
       context.save();
       context.translate(x, y);
       context.rotate(-angle);
+      context.scale(random.range(1, 3), 1);
 
       context.beginPath();
       context.rect(-w * 0.5, -h * 0.5, w, h);
