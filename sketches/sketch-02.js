@@ -15,10 +15,19 @@ const degToRad = (degrees) => {
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "white";
-    context.fillRect(0, 0, width, height);
+    const gradientBackground = context.createLinearGradient(0, 0, 0, height);
+    gradientBackground.addColorStop(0.1, "#22092C");
+    gradientBackground.addColorStop(0.25, "#872341");
+    gradientBackground.addColorStop(0.5, "#BE3144");
+    gradientBackground.addColorStop(0.75, "#F05941");
 
-    context.fillStyle = "black";
+    context.shadowColor = "#B2B377";
+    context.shadowBlur = 20;
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+
+    context.fillStyle = gradientBackground;
+    context.fillRect(0, 0, width, height);
 
     const cx = width * 0.5; // Represent the center of the canvas
     const cy = height * 0.5;
@@ -32,7 +41,7 @@ const sketch = () => {
 
     for (let i = 0; i < num; i++) {
       const slice = math.degToRad(360 / num); // Calculates angle of each slice, then converts to radians
-      const angle = slice * i; // = incrementing each slice to appear at 30, 60, 90, etc.
+      const angle = slice * i; // = Incrementing each slice to appear at 30, 60, 90, etc.
 
       x = cx + radius * Math.sin(angle);
       y = cy + radius * Math.cos(angle);
@@ -44,6 +53,7 @@ const sketch = () => {
       context.rotate(-angle);
       context.scale(random.range(0.1, 2), random.range(0.2, 0.5)); // Modifiable
 
+      context.fillStyle = "white";
       context.beginPath();
       context.rect(-w * 0.5, random.range(0, h * 0.5), w, h); // Modifiable
       context.fill();
@@ -55,6 +65,7 @@ const sketch = () => {
 
       context.lineWidth = random.range(5, 20); // Modifiable arcs
 
+      context.strokeStyle = "white";
       context.beginPath();
       context.arc(
         0,
