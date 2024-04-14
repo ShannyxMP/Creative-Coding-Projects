@@ -29,33 +29,33 @@ const sketch = () => {
     context.fillStyle = gradientBackground;
     context.fillRect(0, 0, width, height);
 
-    const cx = width * 0.5; // Represent the center of the canvas
-    const cy = height * 0.5;
+    const cx = width; // Represent the center of the canvas
+    const cy = height;
 
     const w = width * 0.01;
     const h = height * 0.1;
     let x, y; // These variables will be modified in the loop
 
-    const num = 40;
-    const radius = width * 0.3; // Radius of the circle on which the rectangles will be placed
+    const num = 60;
+    const radius = width * 1; // Radius of the circle on which the rectangles will be placed
 
     for (let i = 0; i < num; i++) {
       const slice = math.degToRad(360 / num); // Calculates angle of each slice, then converts to radians
       const angle = slice * i; // = Incrementing each slice to appear at 30, 60, 90, etc.
 
-      x = cx + radius * Math.sin(angle);
-      y = cy + radius * Math.cos(angle);
+      x = cx + radius * 0.25 * Math.sin(angle);
+      y = cy + radius * 0.25 * Math.cos(angle);
       /* Alternatively you can remove cx and cy from lines directly above, and add an additional 
       context.translate(cx, cy) below */
 
       context.save();
       context.translate(x, y);
       context.rotate(-angle);
-      context.scale(random.range(0.1, 2), random.range(0.2, 0.5)); // Modifiable
+      context.scale(random.range(0.1, 2), random.range(0.2, 0.5));
 
       context.fillStyle = "white";
       context.beginPath();
-      context.rect(-w * 0.5, random.range(0, h * 0.5), w, h); // Modifiable
+      context.rect(-w * 4, random.range(0, h * 4), w, h); // Modifiable
       context.fill();
       context.restore();
 
@@ -63,7 +63,7 @@ const sketch = () => {
       context.translate(cx, cy);
       context.rotate(-angle); // Why do we need another rotate transformation here?
 
-      context.lineWidth = random.range(5, 20); // Modifiable arcs
+      context.lineWidth = random.range(5, 30); // Modifiable arcs
 
       context.strokeStyle = "white";
       context.beginPath();
