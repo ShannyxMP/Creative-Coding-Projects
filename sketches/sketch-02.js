@@ -66,3 +66,28 @@ const sketch = () => {
       context.rect(-w * 0.5, random.range(0, h * 0.5), w, h);
       context.fill();
       context.restore();
+
+      // Drawing arcs
+      context.save();
+      context.translate(cx, cy);
+      context.rotate(-angle); // Rotation is needed to align arcs with rectangles
+
+      context.lineWidth = random.range(5, 20); // Modifiable arcs
+
+      context.strokeStyle = "white";
+      context.beginPath();
+      // Drawing arcs with random parameters
+      context.arc(
+        0,
+        0,
+        radius * random.range(0.7, 1.3),
+        slice * random.range(1, -8),
+        slice * random.range(1, 5)
+      );
+      context.stroke();
+      context.restore();
+    }
+  };
+};
+
+canvasSketch(sketch, settings);
