@@ -28,10 +28,16 @@ const sketch = ({ context, width, height }) => {
     agents.push(new Agent(x, y)); // Creating new agent object and adding it to the array
   }
 
+  // Creating a gradient background
+  const gradientBackground = context.createLinearGradient(0, 0, 0, height);
+  gradientBackground.addColorStop(0.5, "#1A1A2E");
+  gradientBackground.addColorStop(0.75, "#16213E");
+  gradientBackground.addColorStop(0.9, "#0F3460");
+
   // Return the rendering function for canvas-sketch
   return ({ context, width, height }) => {
     // Clear the canvas on each frame
-    context.fillStyle = "white";
+    context.fillStyle = gradientBackground;
     context.fillRect(0, 0, width, height);
 
     // Loop through agents array and draw connections between close agents
@@ -52,17 +58,30 @@ const sketch = ({ context, width, height }) => {
 
         // Draw connection line between agents
         context.beginPath();
+        context.fillStyle = "white";
         context.moveTo(agent.pos.x, agent.pos.y);
         context.lineTo(other.pos.x, other.pos.y);
+        context.strokeStyle = "white";
         context.stroke();
       }
     }
 
     // Update and draw each agent
     agents.forEach((agent) => {
+      context.save(); // Save current drawing state
+
       agent.update(); // Update agent position
+
+      // Applying shadow effect only to circles
+      context.shadowColor = "#B2B377";
+      context.shadowBlur = 20;
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
+
       agent.draw(context); // Draw agent on canvas
       agent.wrap(width, height); // Handle agent bouncing off canvas edges
+
+      context.restore(); // Restore original drawing state
     });
   };
 };
