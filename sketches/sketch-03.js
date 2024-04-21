@@ -62,7 +62,7 @@ const sketch = ({ context, width, height }) => {
     agents.forEach((agent) => {
       agent.update(); // Update agent position
       agent.draw(context); // Draw agent on canvas
-      agent.bounce(width, height); // Handle agent bouncing off canvas edges
+      agent.wrap(width, height); // Handle agent bouncing off canvas edges
     });
   };
 };
@@ -93,10 +93,12 @@ class Agent {
     this.radius = random.range(4, 12); // Random radius
   }
 
-  // Method to handle bouncing off canvas edges
-  bounce(width, height) {
-    if (this.pos.x <= 0 || this.pos.x >= width) this.vel.x *= -1; // Reverse velocity if hitting left or right edge
-    if (this.pos.y <= 0 || this.pos.y >= height) this.vel.y *= -1; // Reverse velocity if hitting top or bottom edge
+  // Method to handle wrap canvas edges
+  wrap(width, height) {
+    if (this.pos.x > width) this.pos.x = 0; // Wrap if it goes past right edge
+    if (this.pos.y > height) this.pos.y = 0; // Wrap if it goes past bottom edge
+    if (this.pos.x < 0) this.pos.x = width; // Wrap if it goes past left edge
+    if (this.pos.y < 0) this.pos.y = height; // Wrap if it goes past top edge
   }
 
   // Method to update agent's position
