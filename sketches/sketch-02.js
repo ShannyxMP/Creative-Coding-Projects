@@ -5,7 +5,6 @@ const random = require("canvas-sketch-util/random");
 const settings = {
   dimensions: [1080, 1080],
   animate: true, // Enables built-in animation loop
-  // fps: 10,
 };
 
 /* NO LONGER NEEDED AS YOU HAVE INTEGRATED canvas-sketch-util LIBRARY
