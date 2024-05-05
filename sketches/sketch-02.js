@@ -5,6 +5,7 @@ const random = require("canvas-sketch-util/random");
 const settings = {
   dimensions: [1080, 1080],
   animate: true, // Enables built-in animation loop
+  // fps: 10,
 };
 
 /* NO LONGER NEEDED AS YOU HAVE INTEGRATED canvas-sketch-util LIBRARY
@@ -14,27 +15,35 @@ const degToRad = (degrees) => {
 };
 */
 
-const sketch = ({ context, width, height }) => {
-  const num = 40; // Number of rectangles and arcs
+// Function that randomises direction
+const direction = function () {
+  let num;
+  Math.random() <= 0.5 ? (num = 1) : (num = -1);
+  return num;
+};
 
+const sketch = ({ context, width, height }) => {
   // Array to store rectangles and arcs
   const rectangles = [];
   const arcs = [];
 
-  for (let i = 0; i < num; i++) {
-    // Calculating center coordinates of the canvas
-    const cx = width * 0.5;
-    const cy = height * 0.5;
+  const nR = 90; // Number of rectangles
+  const nA = 7; // Number of arcs
 
-    const radius = width * 0.3; // Radius of the circle on which rectangles are placed
+  // Calculating center coordinates of the canvas
+  const cx = width * 0.5;
+  const cy = height * 0.5;
 
-    // Calculating angle for each rectangle
-    const slice = math.degToRad(360 / num);
-    const angle = slice * i;
+  const radius = width * 0.3; // Radius of the circle on which rectangles are placed
 
-    rectangles.push(new Rectangle(width, height, cx, cy, radius, angle, i)); // Creating new agent object and adding it to the rectangle array
-    arcs.push(new Arc(cx, cy, radius, angle, slice));
+  for (let i = 0; i < nR; i++) {
+    rectangles.push(new Rectangle(width, height, cx, cy, radius, nR, i)); // Creating new agent object and adding it to the rectangle array
   }
+  for (let j = 0; j < nA; j++) {
+    arcs.push(new Arc(cx, cy, radius)); // Creating new agent object and adding it to the arc array
+  }
+
+  // console.log(rectangles);
 
   return ({ context, width, height }) => {
     // // Clear the canvas before drawing anything else
@@ -63,12 +72,11 @@ const sketch = ({ context, width, height }) => {
       rectangle.draw(context);
     });
 
-    /* TODO: Update arcs
     arcs.forEach((arc) => {
       // console.log("arcs");
+      arc.update();
       arc.draw(context);
     });
-    */
   };
 };
 
@@ -76,40 +84,52 @@ canvasSketch(sketch, settings);
 
 // Class that creates the rectangles
 class Rectangle {
-  constructor(width, height, cx, cy, radius, angle, i) {
+  constructor(width, height, cx, cy, radius, nR, i) {
+    this.cx = cx;
+    this.cy = cy;
+    this.radius = radius;
+    this.n = nR;
+    this.i = i;
+
     // Width and height of rectangles
     this.w = width * 0.01;
     this.h = height * 0.1;
+    this.scale1 = random.range(0.1, 2);
+    this.scale2 = random.range(0.2, 0.5);
+    this.pos = -5;
 
-    this.angle = angle;
-    this.radius = radius;
-    this.i = i;
-
-    // Initialise starting value
-    if (this.i % 2 === 0) {
-      this.moveR = 5;
-    } else if (this.i % 2 !== 0) {
-      this.moveR = 0;
-    }
+    // Calculating angle for each rectangle
+    this.slice = math.degToRad(360 / this.n); // TODO: put slice formula here instead of leaving it up there
+    this.angle = this.slice * this.i;
 
     // Calculating coordinates of each rectangle
-    this.x = cx + this.radius * Math.sin(this.angle);
-    this.y = cy + this.radius * Math.cos(this.angle);
+    this.x = this.cx + this.radius * Math.sin(this.angle);
+    this.y = this.cy + this.radius * Math.cos(this.angle);
   }
 
-  // TODO: Method to update rectangle's position
   update() {
-    // Move the rectangles up and down
-    const speed = 0.01; // Adjust the speed of oscillation if needed
-    const maxMove = 5;
+    const speed = random.range(0.01, 5); // Adjust the speed of rotation if needed
 
-    if (this.moveR >= maxMove) {
+    /* ALTERNATE: Rectangles spin as they rotate
+
+    // Increment the angle in a clockwise direction
+    this.angle += speed;
+
+    // Update the coordinates of the rectangle based on the new angle
+    this.x = this.cx + this.radius * Math.cos(this.angle);
+    this.y = this.cy + this.radius * Math.sin(this.angle);
+    */
+
+    /* ALTERNATE: Rectangles oscillate up and down */
+    const minHeight = -5;
+    const maxHeight = 20; // 700 for clash; 20 for oscillate
+    if (this.pos <= minHeight) {
+      this.direction = 1; // Change direction when reaching the minimum
+    } else if (this.pos >= maxHeight) {
       this.direction = -1; // Change direction when reaching the maximum
-    } else if (this.moveR <= 0) {
-      this.direction = 1; // Change direction when reaching 0
     }
 
-    this.moveR += this.direction * speed;
+    this.pos += this.direction * speed;
   }
 
   // Method to draw the rectangle on the canvas
@@ -118,43 +138,55 @@ class Rectangle {
     context.save();
     context.translate(this.x, this.y);
     context.rotate(-this.angle);
-    context.scale(0.5, 0.25);
+    context.scale(this.scale1, this.scale2);
 
     // Drawing the rectangles
     context.fillStyle = "white";
     context.beginPath();
-    context.rect(-this.w * 0.5, this.h * this.moveR, this.w, this.h);
+    context.rect(-this.w * 0.5, -this.pos, this.w, this.h);
     context.fill();
     context.restore();
   }
 }
+
 // Class that creates the arcs
 class Arc {
-  constructor(cx, cy, radius, angle, slice) {
+  constructor(cx, cy, radius) {
     this.cx = cx;
     this.cy = cy;
-    this.radius = radius;
-    this.angle = angle;
-    this.slice = slice;
-    this.arcStart = this.slice * random.range(1, -8);
-    this.arcEnd = this.slice * random.range(1, 5);
+    this.radius = radius * random.range(0.7, 1.3);
+    this.num = direction();
+
+    this.outline = random.range(5, 20);
+
+    this.arcStart = random.range(math.degToRad(0), math.degToRad(360));
+    this.arcEnd = random.range(math.degToRad(0), math.degToRad(360));
+
+    this.rotate = 0;
+    this.vel = random.range(0, 2);
+  }
+
+  update() {
+    if (this.num === 1) {
+      this.direction = this.rotate += math.degToRad(this.vel);
+    } else if (this.num === -1) {
+      this.direction = this.rotate -= math.degToRad(this.vel);
+    }
   }
 
   // Drawing the rectangles
   draw(context) {
     context.save();
     context.translate(this.cx, this.cy);
-    context.rotate(-this.angle); // Rotation is needed to align arcs with rectangles
-    context.lineWidth = random.range(5, 20);
+
+    context.rotate(this.direction); // TODO***: Update once added direction conditionals
+    // | Rotation is needed to align arcs with rectangles
+
+    context.lineWidth = this.outline;
     context.strokeStyle = "white";
+
     context.beginPath();
-    context.arc(
-      0,
-      0,
-      this.radius * random.range(0.7, 1.3),
-      this.slice * random.range(1, -8),
-      this.slice * random.range(1, 5)
-    ); // Drawing arcs with random parameters
+    context.arc(0, 0, this.radius, this.arcStart, this.arcEnd); // Drawing arcs with random parameters
     context.stroke();
     context.restore();
   }
