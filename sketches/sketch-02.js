@@ -15,7 +15,7 @@ const degToRad = (degrees) => {
 };
 */
 
-// Function that randomises direction
+// Function to randomly determine the direction of movement
 const direction = function () {
   let num;
   Math.random() <= 0.5 ? (num = 1) : (num = -1);
@@ -107,10 +107,11 @@ class Rectangle {
     this.y = this.cy + this.radius * Math.cos(this.angle);
   }
 
+  // Method to update rectangle's position
   update() {
-    const speed = random.range(0.01, 5); // Adjust the speed of rotation if needed
+    const speed = random.range(0.01, 5); // Adjust the speed of rotation
 
-    /* ALTERNATE: Rectangles spin as they rotate
+    /* ALTERNATE: Rectangles will spin as they rotate
 
     // Increment the angle in a clockwise direction
     this.angle += speed;
@@ -166,6 +167,7 @@ class Arc {
     this.vel = random.range(0, 2);
   }
 
+  // Method to update arc's direction
   update() {
     if (this.num === 1) {
       this.direction = this.rotate += math.degToRad(this.vel);
@@ -174,7 +176,7 @@ class Arc {
     }
   }
 
-  // Drawing the rectangles
+  // Method to draw the arc on the canvas
   draw(context) {
     context.save();
     context.translate(this.cx, this.cy);
