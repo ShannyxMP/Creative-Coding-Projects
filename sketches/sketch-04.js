@@ -1,4 +1,5 @@
 const canvasSketch = require("canvas-sketch");
+const random = require("canvas-sketch-util/random");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -12,8 +13,8 @@ const sketch = () => {
     context.fillRect(0, 0, width, height);
 
     // Defining the grid dimensions
-    const cols = 4;
-    const rows = 3;
+    const cols = 10;
+    const rows = 10;
     const numCells = cols * rows;
 
     // Calculating the dimensions and margins of the grid cells
@@ -35,6 +36,9 @@ const sketch = () => {
       const w = cellw * 0.8;
       const h = cellh * 0.8;
 
+      const n = random.noise2D(x, y);
+      const angle = n * Math.PI; // Will produce number from -180 to 180degrees
+
       // Save the current transformation state
       context.save();
 
@@ -42,6 +46,7 @@ const sketch = () => {
       context.translate(x, y);
       context.translate(margx, margy);
       context.translate(cellw * 0.5, cellh * 0.5);
+      context.rotate(angle);
 
       // Set the line width for drawing
       context.lineWidth = 4;
