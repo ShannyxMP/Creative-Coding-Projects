@@ -1,13 +1,14 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const math = require("canvas-sketch-util/math");
 
 const settings = {
   dimensions: [1080, 1080],
-  // animate: true
+  animate: true,
 };
 
 const sketch = () => {
-  return ({ context, width, height }) => {
+  return ({ context, width, height, frame }) => {
     // Setting the background color of the canvas to white
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
@@ -36,8 +37,9 @@ const sketch = () => {
       const w = cellw * 0.8;
       const h = cellh * 0.8;
 
-      const n = random.noise2D(x, y);
-      const angle = n * Math.PI; // Will produce number from -180 to 180degrees
+      const n = random.noise2D(x + frame * 10, y, 0.001);
+      const angle = n * Math.PI * 0.2; // Will produce number from -180 to 180degrees
+      const scale = math.mapRange(n, -1, 1, 1, 30); // ALTERNATIVE: const scale = ((n + 1) / 2) * 30; OR const scale = (n * 0.5 + 0.5) * 30;
 
       // Save the current transformation state
       context.save();
@@ -49,7 +51,7 @@ const sketch = () => {
       context.rotate(angle);
 
       // Set the line width for drawing
-      context.lineWidth = 4;
+      context.lineWidth = scale;
 
       // Draw a horizontal line in the center of the cell
       context.beginPath();
