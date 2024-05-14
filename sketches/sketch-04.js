@@ -16,6 +16,9 @@ const params = {
   scaleMax: 30,
   freq: 0.001,
   amp: 0.2,
+  frame: 0,
+  animate: true,
+  lineCap: "butt",
 };
 
 const sketch = () => {
@@ -48,7 +51,11 @@ const sketch = () => {
       const w = cellw * 0.8;
       const h = cellh * 0.8;
 
-      const n = random.noise2D(x + frame * 10, y, params.freq);
+      const f = params.animate ? frame : params.frame; // <=TERNARY OPERATOR -- Here you want the value of 'f' to be frame when parameter animate is true; 'params.frame' when parameter animate is false
+
+      // const n = random.noise2D(x + frame * 10, y, params.freq); // Here you are incrementing the value of 'x' in the noise2D function -> this results in the movement of the panels from right to left
+      const n = random.noise3D(x, y, f * 10, params.freq); // Here you are using the frame as the third dimension
+
       const angle = n * Math.PI * params.amp; // Will produce number from -180 to 180degrees
       const scale = math.mapRange(n, -1, 1, params.scaleMin, params.scaleMax); // ALTERNATIVE: const scale = ((n + 1) / 2) * 30; OR const scale = (n * 0.5 + 0.5) * 30;
 
@@ -63,6 +70,7 @@ const sketch = () => {
 
       // Set the line width for drawing
       context.lineWidth = scale;
+      context.lineCap = params.lineCap;
 
       // Draw a horizontal line in the center of the cell
       context.beginPath();
@@ -81,6 +89,9 @@ const createPane = () => {
   let folder;
 
   folder = pane.addFolder({ title: "Grid" });
+  folder.addInput(params, "lineCap", {
+    options: { butt: "butt", round: "round", square: "square" },
+  });
   folder.addInput(params, "cols", { min: 2, max: 50, step: 1 });
   folder.addInput(params, "rows", { min: 2, max: 50, step: 1 });
   folder.addInput(params, "scaleMin", { min: 1, max: 100 });
@@ -89,6 +100,8 @@ const createPane = () => {
   folder = pane.addFolder({ title: "Noise" });
   folder.addInput(params, "freq", { min: -0.01, max: 0.01 });
   folder.addInput(params, "amp", { min: 0, max: 1 });
+  folder.addInput(params, "frame", { min: 0, max: 999 });
+  folder.addInput(params, "animate"); // Note that you are adding no options here unlike above, Tweakpane treats this as a boolean value
 };
 
 createPane();
