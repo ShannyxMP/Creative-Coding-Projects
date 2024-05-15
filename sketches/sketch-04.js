@@ -8,17 +8,17 @@ const settings = {
   animate: true,
 };
 
+// Parameters for controlling the sketch
 const params = {
-  // Default values, but can be changed by the options within the pane
-  cols: 10,
-  rows: 10,
-  scaleMin: 1,
-  scaleMax: 30,
-  freq: 0.001,
-  amp: 0.2,
-  frame: 0,
-  animate: true,
-  lineCap: "butt",
+  cols: 10, // Number of columns in the grid
+  rows: 10, // Number of rows in the grid
+  scaleMin: 1, // Minimum scale of the lines
+  scaleMax: 30, // Maximum scale of the lines
+  freq: 0.001, // Frequency of the noise
+  amp: 0.2, // Amplitude of the noise
+  frame: 0, // Current frame number
+  animate: true, // Whether to animate or not
+  lineCap: "butt", // Line cap style (butt, round, square)
 };
 
 const sketch = () => {
@@ -51,6 +51,7 @@ const sketch = () => {
       const w = cellw * 0.8;
       const h = cellh * 0.8;
 
+      // Use frame as the third dimension of noise when animation is enabled, otherwise, use the fixed frame value from params
       const f = params.animate ? frame : params.frame; // <=TERNARY OPERATOR -- Here you want the value of 'f' to be frame when parameter animate is true; 'params.frame' when parameter animate is false
 
       // const n = random.noise2D(x + frame * 10, y, params.freq); // Here you are incrementing the value of 'x' in the noise2D function -> this results in the movement of the panels from right to left
