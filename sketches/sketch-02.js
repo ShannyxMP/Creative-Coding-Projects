@@ -1,11 +1,18 @@
 const canvasSketch = require("canvas-sketch");
 const math = require("canvas-sketch-util/math");
 const random = require("canvas-sketch-util/random");
+const Tweakpane = require("tweakpane");
 
 const settings = {
   dimensions: [1080, 1080],
   animate: true, // Enables built-in animation loop
   // fps: 10,
+};
+
+const params = {
+  Size: 0,
+  Rotation: 0,
+  Clash: 20,
 };
 
 /* NO LONGER NEEDED AS YOU HAVE INTEGRATED canvas-sketch-util LIBRARY
@@ -80,6 +87,23 @@ const sketch = ({ context, width, height }) => {
   };
 };
 
+const createPane = () => {
+  const pane = new Tweakpane.Pane();
+  let folder;
+
+  folder = pane.addFolder({ title: "Tweaks" });
+  folder.addInput(params, "Size", { min: 0, max: 125 });
+  folder.addInput(params, "Rotation", {
+    min: math.degToRad(0),
+    max: math.degToRad(180),
+  });
+  folder.addInput(params, "Clash", {
+    options: { Clash: 700, Oscillate: 20 },
+  });
+};
+
+createPane();
+
 canvasSketch(sketch, settings);
 
 // Class that creates the rectangles
@@ -123,7 +147,7 @@ class Rectangle {
 
     /* ALTERNATE: Rectangles oscillate up and down */
     const minHeight = -5;
-    const maxHeight = 20; // 700 for clash; 20 for oscillate
+    const maxHeight = params.Clash; // 700 for clash; 20 for oscillate
     if (this.pos <= minHeight) {
       this.direction = 1; // Change direction when reaching the minimum
     } else if (this.pos >= maxHeight) {
@@ -138,13 +162,13 @@ class Rectangle {
     // Applying transformations to each rectangle
     context.save();
     context.translate(this.x, this.y);
-    context.rotate(-this.angle);
+    context.rotate(-this.angle + params.Rotation);
     context.scale(this.scale1, this.scale2);
 
     // Drawing the rectangles
     context.fillStyle = "white";
     context.beginPath();
-    context.rect(-this.w * 0.5, -this.pos, this.w, this.h);
+    context.rect(-this.w * 0.5, -this.pos + params.Size, this.w, this.h);
     context.fill();
     context.restore();
   }
@@ -188,7 +212,7 @@ class Arc {
     context.strokeStyle = "white";
 
     context.beginPath();
-    context.arc(0, 0, this.radius, this.arcStart, this.arcEnd); // Drawing arcs with random parameters
+    context.arc(0, 0, this.radius + params.Size, this.arcStart, this.arcEnd); // Drawing arcs with random parameters
     context.stroke();
     context.restore();
   }
