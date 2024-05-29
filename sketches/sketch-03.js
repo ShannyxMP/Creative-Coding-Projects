@@ -1,6 +1,7 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
 const math = require("canvas-sketch-util/math");
+const Tweakpane = require("tweakpane");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -16,6 +17,10 @@ const animate = () => {
 };
 animate(); // Invoking the animate function
 */
+
+const params = {
+  Type: "wrap", // Default type is 'wrap'
+};
 
 const sketch = ({ context, width, height }) => {
   const agents = []; // Array to store agent objects
@@ -62,10 +67,30 @@ const sketch = ({ context, width, height }) => {
     agents.forEach((agent) => {
       agent.update(); // Update agent position
       agent.draw(context); // Draw agent on canvas
-      agent.wrap(width, height); // Handle agent bouncing off canvas edges
+      // Handle edge behaviour (wrap or bounce) depending on seleciton
+      if (params.Type === "wrap") {
+        agent.wrap(width, height);
+      } else if (params.Type === "bounce") {
+        agent.bounce(width, height);
+      }
     });
   };
 };
+
+// Create Tweapane and add dropdown for edge behaviour
+const createPane = () => {
+  const pane = new Tweakpane.Pane();
+  let folder;
+
+  folder = pane.addInput(params, "Type", {
+    options: {
+      Wrap: "wrap",
+      Bounce: "bounce",
+    },
+  });
+};
+
+createPane();
 
 // Initialize canvas-sketch with the sketch and settings
 canvasSketch(sketch, settings);
@@ -99,6 +124,12 @@ class Agent {
     if (this.pos.y > height) this.pos.y = 0; // Wrap if it goes past bottom edge
     if (this.pos.x < 0) this.pos.x = width; // Wrap if it goes past left edge
     if (this.pos.y < 0) this.pos.y = height; // Wrap if it goes past top edge
+  }
+
+  // Method to hangle bounce canvas edges
+  bounce(width, height) {
+    if (this.pos.x <= 0 || this.pos.x >= width) this.vel.x *= -1;
+    if (this.pos.y <= 0 || this.pos.y >= height) this.vel.y *= -1;
   }
 
   // Method to update agent's position
