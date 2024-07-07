@@ -4,6 +4,8 @@ const settings = {
   dimensions: [1080, 1080],
 };
 
+let manager;
+
 let text = "X";
 let fontSize = 1200;
 let fontFamily = "serif";
@@ -14,14 +16,14 @@ const sketch = () => {
     context.fillRect(0, 0, width, height);
 
     context.fillStyle = "black";
-    // context.font = "1200px serif"; | Made it more dynamic by placing variables outside
+    // context.font = "1200px serif"; | *Original* but now you made it more dynamic by placing variables outside (LINE8-9)
     // context.font = fontSize + 'px ' + fontFamily; | Concactinating outside variables
-    context.font = `${fontSize}px ${fontFamily}`;
+    context.font = `${fontSize}px ${fontFamily}`; // Better alternative
     context.textBaseline = "top";
     // context.textAlign = "center";
 
     const metrics = context.measureText(text);
-    console.log(metrics); // To view all parameters
+    // console.log(metrics); | To view all parameters
     const mx = metrics.actualBoundingBoxLeft * -1;
     const my = metrics.actualBoundingBoxAscent * -1;
     const mw = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
@@ -43,4 +45,15 @@ const sketch = () => {
   };
 };
 
-canvasSketch(sketch, settings);
+const onKeyUp = (eventObject) => {
+  // console.log(eventObject); | To view all parameters
+  text = eventObject.key.toUpperCase(); // You can add .toUpperCase()
+  manager.render();
+};
+
+document.addEventListener("keyup", onKeyUp);
+
+const start = async () => {
+  manager = await canvasSketch(sketch, settings);
+};
+start();
