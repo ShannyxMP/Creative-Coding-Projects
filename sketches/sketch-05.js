@@ -1,4 +1,5 @@
 const canvasSketch = require("canvas-sketch");
+const random = require("canvas-sketch-util/random");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -24,10 +25,10 @@ const sketch = ({ context, width, height }) => {
   typeCanvas.height = rows;
 
   return ({ context, width, height }) => {
-    typeContext.fillRect(0, 0, cols, rows);
     typeContext.fillStyle = "black";
+    typeContext.fillRect(0, 0, cols, rows);
 
-    fontSize = cols;
+    fontSize = cols * 1.2;
 
     typeContext.fillStyle = "white";
     // context.font = "1200px serif"; | *Original* but now you made it more dynamic by placing variables outside (LINE8-9)
@@ -58,7 +59,16 @@ const sketch = ({ context, width, height }) => {
     typeContext.restore();
 
     const typeData = typeContext.getImageData(0, 0, cols, rows).data; // Just interested in the 'data:' property of this object
-    console.log(typeData); //"data: 0 - 11663" 4(rgba) * 54(width [1080 / cells(20) = 54]) * 54(height) = 11664
+    // console.log(typeData); //"data: 0 - 11663" 4(rgba) * 54(width [1080 / cells(20) = 54]) * 54(height) = 11664
+
+    context.fillStyle = "black";
+    context.fillRect(0, 0, width, height);
+
+    context.textBaseline = "middle";
+    context.textAlign = "center";
+
+    // context.drawImage(typeCanvas, 0, 0); // Smaller canvas that appears in the top left
+
     // To read data values:
     for (let i = 0; i < numCells; i++) {
       const col = i % cols;
@@ -72,7 +82,12 @@ const sketch = ({ context, width, height }) => {
       const b = typeData[i * 4 + 2];
       const a = typeData[i * 4 + 3];
 
-      context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+      const glyph = getGlyph(r); // Note that because you only want white text, you don't need all channels; are only using one channel of the four here
+
+      context.font = `${cell * 2}px ${fontFamily}`;
+      if (Math.random() < 0.1) context.font = `${cell * 6}px ${fontFamily}`;
+
+      context.fillStyle = `rgb(${r}, ${g}, ${b})`; // Can change it to "white" if you want the glyphs to only appear white
 
       /*
       // To appear as square blocks:
@@ -82,6 +97,7 @@ const sketch = ({ context, width, height }) => {
       context.restore();
       */
 
+      /*
       // ALTERNATIVE | To appear as circles:
       context.save();
       context.translate(x, y);
@@ -90,10 +106,28 @@ const sketch = ({ context, width, height }) => {
       context.arc(0, 0, cell * 0.5, 0, Math.PI * 2);
       context.fill();
       context.restore();
-    }
+      */
 
-    context.drawImage(typeCanvas, 0, 0);
+      // To fill with glyphs:
+      context.save();
+      context.translate(x, y);
+      context.translate(cell * 0.5, cell * 0.5);
+      context.fillText(glyph, 0, 0);
+      context.restore();
+    }
   };
+};
+
+const getGlyph = (v) => {
+  // 'v' is the brightness of the channel: 0 - 255
+  if (v < 50) return "";
+  if (v < 100) return ".";
+  if (v < 150) return "-";
+  if (v < 200) return "+";
+
+  const glyphs = "_= /".split("");
+
+  return random.pick(glyphs);
 };
 
 const onKeyUp = (eventObject) => {
@@ -107,4 +141,5 @@ document.addEventListener("keyup", onKeyUp);
 const start = async () => {
   manager = await canvasSketch(sketch, settings);
 };
+
 start();
