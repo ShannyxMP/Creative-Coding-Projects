@@ -1,4 +1,4 @@
-/****************** FOR LETTER GENERATION ******************/
+/****************** FOR LETTER GENERATION ******************
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
 
@@ -140,8 +140,9 @@ const start = async () => {
 };
 
 start();
+*/
 
-/****************** FOR IMAGE GENERATION  ******************
+/****************** FOR IMAGE GENERATION  ******************/
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
 
@@ -196,6 +197,8 @@ const sketch = ({ context, width, height }) => {
     context.textBaseline = "middle";
     context.textAlign = "center";
 
+    context.drawImage(typeCanvas, 0, 0); // Smaller canvas that appears in the top left
+
     for (let i = 0; i < numCells; i++) {
       const col = i % cols;
       const row = Math.floor(i / cols);
@@ -244,4 +247,3 @@ const start = async () => {
 };
 
 start();
-*/
