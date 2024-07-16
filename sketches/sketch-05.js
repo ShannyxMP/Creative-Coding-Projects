@@ -145,9 +145,37 @@ start();
 /****************** FOR IMAGE GENERATION  ******************/
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const Tweakpane = require("tweakpane");
 
 const settings = {
   dimensions: [1080, 1080],
+};
+
+// Parameters for controlling the glyphs:
+const params = {
+  theme: {
+    active: "symbols", // Default active theme
+    symbols: {
+      v25: "",
+      v50: ".",
+      v75: ",",
+      v100: "-",
+      v125: "~",
+      v150: "+",
+      v175: "=",
+      v200: "*",
+    },
+    letters: {
+      v25: "u",
+      v50: "T",
+      v75: "r",
+      v100: "i",
+      v125: "p",
+      v150: "p",
+      v175: "i",
+      v200: "n",
+    },
+  },
 };
 
 let manager;
@@ -227,17 +255,72 @@ const sketch = ({ context, width, height }) => {
   };
 };
 
-const getGlyph = (v) => {
-  if (v < 25) return "";
-  if (v < 50) return ".";
-  if (v < 75) return ",";
-  if (v < 100) return "-";
-  if (v < 125) return "+";
-  if (v < 150) return "S";
-  if (v < 175) return "M";
-  if (v < 200) return "P";
+const createPane = () => {
+  const pane = new Tweakpane.Pane();
+  let folder;
 
-  const glyphs = "_= /".split("");
+  folder = pane.addFolder({ title: "Theme" });
+
+  // Dropdown to select the active theme
+  folder.addInput(params.theme, "active", {
+    options: {
+      Symbols: "symbols",
+      Letters: "letters",
+    },
+    label: "Theme",
+  });
+
+  // Create folders for each theme
+  const symbolFolder = folder.addFolder({ title: "Symbols Theme" });
+  symbolFolder.addInput(params.theme.symbols, "v25");
+  symbolFolder.addInput(params.theme.symbols, "v50");
+  symbolFolder.addInput(params.theme.symbols, "v75");
+  symbolFolder.addInput(params.theme.symbols, "v100");
+  symbolFolder.addInput(params.theme.symbols, "v125");
+  symbolFolder.addInput(params.theme.symbols, "v150");
+  symbolFolder.addInput(params.theme.symbols, "v175");
+  symbolFolder.addInput(params.theme.symbols, "v200");
+
+  const letterFolder = folder.addFolder({ title: "Letters Theme" });
+  letterFolder.addInput(params.theme.letters, "v25");
+  letterFolder.addInput(params.theme.letters, "v50");
+  letterFolder.addInput(params.theme.letters, "v75");
+  letterFolder.addInput(params.theme.letters, "v100");
+  letterFolder.addInput(params.theme.letters, "v125");
+  letterFolder.addInput(params.theme.letters, "v150");
+  letterFolder.addInput(params.theme.letters, "v175");
+  letterFolder.addInput(params.theme.letters, "v200");
+
+  // Function to update visibility based on selected theme
+  const updateThemeVisibility = () => {
+    const activeTheme = params.theme.active;
+    symbolFolder.hidden = activeTheme !== "symbols";
+    letterFolder.hidden = activeTheme !== "letters";
+    // Re-render the sketch with the update theme
+    if (manager) manager.render();
+  };
+
+  // Update visibility initially and on change
+  updateThemeVisibility();
+  pane.on("change", updateThemeVisibility);
+};
+
+createPane();
+
+const getGlyph = (v) => {
+  // Determine the active theme
+  const activeTheme = params.theme[params.theme.active];
+
+  if (v < 25) return activeTheme.v25;
+  if (v < 50) return activeTheme.v50;
+  if (v < 75) return activeTheme.v75;
+  if (v < 100) return activeTheme.v100;
+  if (v < 125) return activeTheme.v125;
+  if (v < 150) return activeTheme.v150;
+  if (v < 175) return activeTheme.v175;
+  if (v < 200) return activeTheme.v200;
+
+  const glyphs = "* ^".split("");
 
   return random.pick(glyphs);
 };
