@@ -6,12 +6,11 @@ const settings = {
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "white";
+    context.fillStyle = "#FFF";
     context.fillRect(0, 0, width, height);
 
     // *** IDEA ONE ***
     // 1. Create dots to mimic ocean (from top view):
-    // i. Set dots spaced apart
     // Declaring variables for spacing and number of circles
     const gap = width * 0.025;
     const yGap = gap * 0.4; // Adjust y-gap to be smaller
@@ -25,6 +24,7 @@ const sketch = () => {
     let ix = (width - gridWidth) * 0.5;
     let iy = (height - gridHeight) * 0.5;
 
+    // Draw circles in a diamond shape
     for (let i = 0; i < num; i++) {
       for (let j = 0; j < num; j++) {
         // Reduce the number of circles in each row
@@ -32,19 +32,29 @@ const sketch = () => {
         let y = iy + yGap * i;
 
         context.save();
+
         context.translate(x, y);
+
+        // Define the radial gradient for each circle at its position
+        const gradient = context.createRadialGradient(-2, -2, 0, 0, 0, 10);
+        gradient.addColorStop(0, "#FB773C");
+        gradient.addColorStop(0.6, "#180161");
+
+        context.shadowColor = "#4F1787"; // Setting shadow color
+        context.shadowBlur = 4; // Setting shadow blur
+        context.shadowOffsetX = 3; // Setting shadow offset
+        context.shadowOffsetY = 2;
 
         context.beginPath();
         context.arc(0, 0, 5, 0, Math.PI * 2);
-        context.fillStyle = "grey";
-        context.strokeStyle = "grey";
+        context.fillStyle = gradient;
+        context.strokeStyle = "#EB3678";
         context.fill();
         context.stroke();
 
         context.restore();
       }
     }
-    // ii. Alter colour - change gradient to spherical
     // iii. Have dots behave to Perlin Noise by concentrating together -> 2D or 3D?
     // a. The closer the dots are, the higher the water
     // 2. Add No-face mask
