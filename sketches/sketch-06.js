@@ -6,7 +6,20 @@ const settings = {
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "#FFF";
+    // Define the linear gradient for background
+    const gradientLinear = context.createLinearGradient(
+      width * 0.5, // x-axis start point
+      0, // y-axis start point
+      width * 0.5, // x-axis end point
+      height // y-axis end point
+    );
+    gradientLinear.addColorStop(0.025, "#57C5B6");
+    gradientLinear.addColorStop(0.1, "#159895");
+    gradientLinear.addColorStop(0.25, "#1A5F7A");
+    gradientLinear.addColorStop(0.5, "#002B5B");
+    gradientLinear.addColorStop(0.75, "#17153B");
+
+    context.fillStyle = gradientLinear;
     context.fillRect(0, 0, width, height);
 
     // *** IDEA ONE ***
@@ -36,19 +49,26 @@ const sketch = () => {
         context.translate(x, y);
 
         // Define the radial gradient for each circle at its position
-        const gradient = context.createRadialGradient(-2, -2, 0, 0, 0, 10);
-        gradient.addColorStop(0, "#FB773C");
-        gradient.addColorStop(0.6, "#180161");
+        const gradientRadial = context.createRadialGradient(
+          -2, // x-axis of start circle
+          -2, // y-axis of the start circle
+          0, // radius of start circle
+          0, // x-axis of end circle
+          0, // y-axis of end circle
+          10 // radius of end circle
+        );
+        gradientRadial.addColorStop(0, "#E9C46A");
+        gradientRadial.addColorStop(0.9, "#F4A261");
 
-        context.shadowColor = "#4F1787"; // Setting shadow color
-        context.shadowBlur = 4; // Setting shadow blur
-        context.shadowOffsetX = 3; // Setting shadow offset
-        context.shadowOffsetY = 2;
+        context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
+        context.shadowBlur = 5; // Setting shadow blur
+        context.shadowOffsetX = 0; // Setting x-axis shadow offset
+        context.shadowOffsetY = 0; // Setting y-axis shadow offset
 
         context.beginPath();
         context.arc(0, 0, 5, 0, Math.PI * 2);
-        context.fillStyle = gradient;
-        context.strokeStyle = "#EB3678";
+        context.fillStyle = gradientRadial;
+        context.strokeStyle = "#E76F51";
         context.fill();
         context.stroke();
 
