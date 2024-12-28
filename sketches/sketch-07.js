@@ -55,7 +55,7 @@ const sketch = ({ width, height }) => {
         `Blob: x=${blob.x}, y=${blob.y}, u=${blob.upperLimit}, l=${blob.lowerLimit}`
       );
 
-      // Define the gradient for each blob at its position //** TO CHANGE: add ?perlean noise to differentiate color, like a blob
+      // Define the gradient for each blob at its position //** TO CHANGE: add ?Perlin Noise to differentiate color, like a blob
       const gradientBlob = context.createLinearGradient(
         width * 0.5, // x-axis start point
         0, // y-axis start point
