@@ -17,22 +17,19 @@ const params = {
   Amplitude: 0.3,
 };
 
-const sketch = () => {
+const sketch = ({ width, height }) => {
   const blobs = []; // Array to store blob objects
-  let blobCount = 0; // Keep track of how many blobs appearing on canvas
 
-  // Generate randomly sized and x-position 'blobs' that will appear from the bottom
+  // Generate randomly sized and x-positioned 'blobs' that will appear from the bottom
   for (let i = 0; i < params.blobAmount; i++) {
-    // Define parameters tp ne used in other lines of code
+    // Define parameters of blob
     const r = random.range(params.radiusMin, params.radiusMax);
-    const x = random.range(params.xPosMin, settings.dimensions[2]);
-    const y = settings.dimensions[1] + r; //**TO CHANGE: height + r
-    const u = 0 - r; // Define the upper limit of canvas for the blob to then disappear
-    const l = settings.dimensions[1] + r; // Define the lower limit of canvas for the blob to then disappear
+    const x = random.range(params.xPosMin, width);
+    const y = height + r;
+    const u = -r * 2; // Define upper limit of canvas for the blob to then disappear
+    const l = height + r * 2; // Define lower limit of canvas for the blob to then disappear
 
     blobs.push(new Blob(x, y, r, u, l)); // Creating new agent object and adding it to the array
-    blobCount += 1;
-    console.log("[${i}]Blob Count is: ${blobCount}");
   }
 
   return ({ context, width, height }) => {
@@ -53,7 +50,12 @@ const sketch = () => {
     context.fillRect(0, 0, width, height);
 
     blobs.forEach((blob, index) => {
-      // Define the gradient for each blob at its position //**CHANGE: add perlean noise to differentiate color, like a blob
+      // Log the blob's properties for debugging
+      console.log(
+        `Blob: x=${blob.x}, y=${blob.y}, u=${blob.upperLimit}, l=${blob.lowerLimit}`
+      );
+
+      // Define the gradient for each blob at its position //** TO CHANGE: add ?perlean noise to differentiate color, like a blob
       const gradientBlob = context.createLinearGradient(
         width * 0.5, // x-axis start point
         0, // y-axis start point
@@ -78,17 +80,22 @@ const sketch = () => {
       // Define 1D noise to move blob vertically
       const n1D = random.noise1D(blob.x, params.Frequency, params.Amplitude);
       blob.y += n1D * 10; // Update blob's y-coordinates
-      // Need to delete blob if reaches a certain height
+
+      // To replace blob if reaches a certain height
       if (blob.y <= blob.upperLimit || blob.y >= blob.lowerLimit) {
-        let newBlob = new Blob(
+        const newBlob = new Blob(
           random.range(params.xPosMin, width),
-          random.range(-params.radiusMax * 2, 0) ||
-            random.range(height + params.radiusMax * 2),
+          random.boolean()
+            ? random.range(-params.radiusMax * 2, -params.radiusMax)
+            : random.range(
+                height + params.radiusMax,
+                height + params.radiusMax * 2
+              ),
           random.range(params.radiusMin, params.radiusMax),
           blob.upperLimit,
           blob.lowerLimit
-        ); //** TO CHANGE Y-VALUE */  // New blob to generate
-        blobs.splice(index, 1, newBlob); // Removes 1 from position/index in array
+        );
+        blobs.splice(index, 1, newBlob); // Replaces one blob from position(index) in array with new
       }
     });
   };
