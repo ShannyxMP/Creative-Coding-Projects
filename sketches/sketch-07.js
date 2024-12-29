@@ -13,7 +13,7 @@ const params = {
   radiusMax: 200,
   blobAmount: 9,
   xPosMin: 0,
-  Frequency: 0.002,
+  Frequency: 0.001,
   Amplitude: 0.3,
 };
 
@@ -66,7 +66,7 @@ const sketch = ({ width, height }) => {
       gradientBlob.addColorStop(0.5, "#F4A261");
       gradientBlob.addColorStop(0.75, "#E9C46A");
       context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
-      context.shadowBlur = 20; // Setting shadow blur
+      context.shadowBlur = 75; // Setting shadow blur
       context.shadowOffsetX = 0; // Setting x-axis shadow offset
       context.shadowOffsetY = 0; // Setting y-axis shadow offset
 
@@ -79,7 +79,7 @@ const sketch = ({ width, height }) => {
 
       // Define 1D noise to move blob vertically
       const n1D = random.noise1D(blob.x, params.Frequency, params.Amplitude);
-      blob.y += n1D * 10; // Update blob's y-coordinates
+      blob.y += (n1D * 10) / 2; // Update blob's y-coordinates
 
       // To replace blob if reaches a certain height
       if (blob.y <= blob.upperLimit || blob.y >= blob.lowerLimit) {
