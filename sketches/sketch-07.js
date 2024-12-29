@@ -9,9 +9,9 @@ const settings = {
 
 // Parameters for controlling the sketch
 const params = {
-  radiusMin: 50,
+  radiusMin: 25,
   radiusMax: 200,
-  blobAmount: 9,
+  blobAmount: 30,
   xPosMin: 0,
   Frequency: 0.001,
   Amplitude: 0.3,
@@ -56,15 +56,35 @@ const sketch = ({ width, height }) => {
       );
 
       // Define the gradient for each blob at its position //** TO CHANGE: add ?Perlin Noise to differentiate color, like a blob
-      const gradientBlob = context.createLinearGradient(
-        width * 0.5, // x-axis start point
-        0, // y-axis start point
-        width * 0.5, // x-axis end point
-        height // y-axis end point
+      /* LINEAR GRADIENT DESIGN
+        const gradientBlob = context.createLinearGradient(
+          width * 0.5, // x-axis start point
+          0, // y-axis start point
+          width * 0.5, // x-axis end point
+          height // y-axis end point
+        );
+        gradientBlob.addColorStop(0.025, "rgba(255, 255, 255, 1)");
+        gradientBlob.addColorStop(0.5, "rgba(255, 204, 102, 1)");
+        gradientBlob.addColorStop(0.75, "rgba(255, 153, 51, 1)");
+        context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
+        context.shadowBlur = 75; // Setting shadow blur
+        context.shadowOffsetX = 0; // Setting x-axis shadow offset
+        context.shadowOffsetY = 0; // Setting y-axis shadow offset
+        */
+
+      /* RADIAL GRADIENT DESIGN*/
+      const gradientBlob = context.createRadialGradient(
+        blob.x, // x-coordinate for inner circle
+        blob.y, // y-coordinate for inner circle
+        blob.radius * 0.1, // inner circle radius
+        blob.x, // x-coordinate for outer circle
+        blob.y, // y-coordinate for outer circle
+        blob.radius // outer circle radius
       );
-      gradientBlob.addColorStop(0.025, "#FFF");
-      gradientBlob.addColorStop(0.5, "#F4A261");
-      gradientBlob.addColorStop(0.75, "#E9C46A");
+      gradientBlob.addColorStop(0, "rgb(250, 213, 140)"); // Light highlight
+      gradientBlob.addColorStop(0.25, "rgba(255, 204, 102, 1)"); // Midtone
+      gradientBlob.addColorStop(0.85, "rgba(255, 153, 51, 1)"); // Dark shadow
+      gradientBlob.addColorStop(1, "rgba(255, 128, 0, 0.75)"); // Dark shadow
       context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
       context.shadowBlur = 75; // Setting shadow blur
       context.shadowOffsetX = 0; // Setting x-axis shadow offset
