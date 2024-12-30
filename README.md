@@ -11,10 +11,11 @@
   - [Useful resources](#useful-resources)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
+  - [License Information](#license-information)
 
 ## Overview
 
-The course, _Creative Coding: Making Visuals with JavaScript_, created by Bruno Imbrizi was an opportunity to develop visual compositions with programming. My final project, _Lava Lamp_, attempts to integrate many things I learned in this course.
+The course, _Creative Coding: Making Visuals with JavaScript_, created by Bruno Imbrizi was an opportunity to develop visual compositions with programming. My final art project, _Lava Lamp_, attempts to simulate the organic motion of blobs in a lava lamp.
 
 ### Screenshot
 
@@ -39,7 +40,7 @@ blob.y += (n1D * 10) / 2; // Update blob's y-coordinates
 
 ### Continued development
 
-There were a lot of ideas regarding the use of Perlin Noise that I am keen to explore that were not achievable in my final project. For example I attempted to use Perlin Noise to create natural movement of the colours of the blobs to give it more definition, but settled for a radial gradient. I also attempted to use Perlin Noise to have the blobs appear more fluid-like rather than circular, so it may morph as it moves with no success. Hopefully, as my knowledge of mathemathics improves, it is something that comes to fruition in future projects.
+There were a lot of ideas regarding the use of Perlin Noise that I am keen to explore that were not achievable in my final project. For example, I attempted to use Perlin Noise to create natural movement of the colours of the blobs to give it more definition, but settled for a radial gradient. I also attempted to use Perlin Noise to have the blobs appear more fluid-like rather than circular, so it may morph as it moves - unfortuantely, to no success. As my knowledge of mathematics improves, hopefully, it is something that comes to fruition in future projects.
 
 ### Useful resources
 
