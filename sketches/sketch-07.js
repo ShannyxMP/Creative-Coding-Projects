@@ -1,4 +1,3 @@
-// CHANGES NEED TO BE MADE, SEARCH '**'
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
 
@@ -9,7 +8,7 @@ const settings = {
 
 // Parameters for controlling the sketch
 const params = {
-  radiusMin: 25,
+  radiusMin: 40,
   radiusMax: 200,
   blobAmount: 20,
   xPosMin: 0,
@@ -51,29 +50,31 @@ const sketch = ({ width, height }) => {
     context.fillRect(0, 0, width, height);
 
     blobs.forEach((blob, index) => {
-      // Log the blob's properties for debugging
+      /* //Log the blob's properties for debugging
       console.log(
         `Blob: x=${blob.x}, y=${blob.y}, u=${blob.upperLimit}, l=${blob.lowerLimit}`
       );
+      */
 
-      // Define the gradient for each blob at its position //** TO CHANGE: add ?Perlin Noise to differentiate color, like a blob
+      // Define the gradient for each blob at its position: LINEAR OR RADIAL
+
       /* LINEAR GRADIENT DESIGN
-        const gradientBlob = context.createLinearGradient(
-          width * 0.5, // x-axis start point
-          0, // y-axis start point
-          width * 0.5, // x-axis end point
-          height // y-axis end point
-        );
-        gradientBlob.addColorStop(0.025, "rgba(255, 255, 255, 1)");
-        gradientBlob.addColorStop(0.5, "rgba(255, 204, 102, 1)");
-        gradientBlob.addColorStop(0.75, "rgba(255, 153, 51, 1)");
-        context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
-        context.shadowBlur = 75; // Setting shadow blur
-        context.shadowOffsetX = 0; // Setting x-axis shadow offset
-        context.shadowOffsetY = 0; // Setting y-axis shadow offset
-        */
+          const gradientBlob = context.createLinearGradient(
+            width * 0.5, // x-axis start point
+            0, // y-axis start point
+            width * 0.5, // x-axis end point
+            height // y-axis end point
+          );
+          gradientBlob.addColorStop(0.025, "rgba(255, 255, 255, 1)");
+          gradientBlob.addColorStop(0.5, "rgba(255, 204, 102, 1)");
+          gradientBlob.addColorStop(0.75, "rgba(255, 153, 51, 1)");
+          context.shadowColor = "#E9C46A"; // Setting shadow color
+          context.shadowBlur = 75; // Setting shadow blur
+          context.shadowOffsetX = 0; // Setting x-axis shadow offset
+          context.shadowOffsetY = 0; // Setting y-axis shadow offset
+      */
 
-      /* RADIAL GRADIENT DESIGN*/
+      /* RADIAL GRADIENT DESIGN */
       const gradientBlob = context.createRadialGradient(
         blob.x, // x-coordinate for inner circle
         blob.y, // y-coordinate for inner circle
