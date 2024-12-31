@@ -19,7 +19,8 @@ The course, _Creative Coding: Making Visuals with JavaScript_, created by Bruno 
 
 ### Screenshot
 
-![Screenshot of Final Project: Lava Lamp](./sketches/output/07/Lava%20Lamp.gif)
+![Screenshot of Final Project: Lava Lamp](./sketches/output/07/Lava%20Lamp%20-%20ShannyxMP.gif)
+_Note: GIF image is sped up._
 
 ## My process
 
