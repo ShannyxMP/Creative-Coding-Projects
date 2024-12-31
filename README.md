@@ -30,7 +30,7 @@ The course, _Creative Coding: Making Visuals with JavaScript_, created by Bruno 
 
 ### What I learned
 
-One of the major challenges of this project was having the code simulate the natural behaviour of lava lamps - that is, the objects (blobs) to rise and fall due to temperature changes. Perlin Noise was a concept introduced by Bruno which assisted me with this hurdle. I attempted to integrate this into my final project which seemed to work in my favor as the speed of the blobs generated were randomised, appearing natural in their movement:
+One of the major challenges of this project was having the code simulate the natural behaviour of lava lamps - that is, the objects (blobs) rise and fall due to temperature changes. Perlin Noise was a concept introduced by Bruno which assisted me with this hurdle. I attempted to integrate this into my final project which seemed to work in my favour as the motion of the blobs generated was smooth, appearing organic in their movement:
 
 ```js
 // Define 1D noise to move blob vertically
@@ -40,7 +40,7 @@ blob.y += (n1D * 10) / 2; // Update blob's y-coordinates
 
 ### Continued development
 
-There were a lot of ideas regarding the use of Perlin Noise that I am keen to explore that were not achievable in my final project. For example, I attempted to use Perlin Noise to create natural movement of the colours of the blobs to give it more definition, but settled for a radial gradient. I also attempted to use Perlin Noise to have the blobs appear more fluid-like rather than circular, so it may morph as it moves - unfortuantely, to no success. As my knowledge of mathematics improves, hopefully, it is something that comes to fruition in future projects.
+There were many ideas regarding the use of Perlin Noise that I am keen to explore that were not achievable in my final project. For example, I attempted to use Perlin Noise to create a natural movement of the colours chosen for the blobs to give it more definition but settled for a radial gradient. I also attempted to use Perlin Noise to have the blobs appear more fluid-like rather than circular, so it may morph as it is in motion - unfortunately, to no success. As my knowledge of visual programming improves, hopefully, it will come to fruition in future projects.
 
 ### Useful resources
 
