@@ -11,7 +11,7 @@ const settings = {
 const params = {
   radiusMin: 25,
   radiusMax: 200,
-  blobAmount: 30,
+  blobAmount: 20,
   xPosMin: 0,
   Frequency: 0.001,
   Amplitude: 0.3,
@@ -28,8 +28,9 @@ const sketch = ({ width, height }) => {
     const y = height + r;
     const u = -r * 2; // Define upper limit of canvas for the blob to then disappear
     const l = height + r * 2; // Define lower limit of canvas for the blob to then disappear
+    const o = random.range(0, 1000); // Noise offset to allow blobs to move independently rather than in unison
 
-    blobs.push(new Blob(x, y, r, u, l)); // Creating new agent object and adding it to the array
+    blobs.push(new Blob(x, y, r, u, l, o)); // Creating new agent object and adding it to the array
   }
 
   return ({ context, width, height }) => {
@@ -85,7 +86,7 @@ const sketch = ({ width, height }) => {
       gradientBlob.addColorStop(0.25, "rgba(255, 204, 102, 1)"); // Midtone
       gradientBlob.addColorStop(0.85, "rgba(255, 153, 51, 1)"); // Dark shadow
       gradientBlob.addColorStop(1, "rgba(255, 128, 0, 0.75)"); // Dark shadow
-      context.shadowColor = "#E9C46A"; //"#4F1787"; // Setting shadow color
+      context.shadowColor = "#E9C46A"; // Setting shadow color
       context.shadowBlur = 75; // Setting shadow blur
       context.shadowOffsetX = 0; // Setting x-axis shadow offset
       context.shadowOffsetY = 0; // Setting y-axis shadow offset
@@ -98,8 +99,13 @@ const sketch = ({ width, height }) => {
       context.restore();
 
       // Define 1D noise to move blob vertically
-      const n1D = random.noise1D(blob.x, params.Frequency, params.Amplitude);
-      blob.y += (n1D * 10) / 2; // Update blob's y-coordinates
+      const n1D = random.noise1D(
+        blob.noiseOffset,
+        params.Frequency,
+        params.Amplitude
+      );
+      blob.y += (n1D * 10) / 4; // Update blob's y-coordinates
+      blob.noiseOffset += 0.01;
 
       // To replace blob if reaches a certain height
       if (blob.y <= blob.upperLimit || blob.y >= blob.lowerLimit) {
@@ -113,7 +119,8 @@ const sketch = ({ width, height }) => {
               ),
           random.range(params.radiusMin, params.radiusMax),
           blob.upperLimit,
-          blob.lowerLimit
+          blob.lowerLimit,
+          random.range(0, 1000)
         );
         blobs.splice(index, 1, newBlob); // Replaces one blob from position(index) in array with new
       }
@@ -124,11 +131,12 @@ const sketch = ({ width, height }) => {
 canvasSketch(sketch, settings);
 
 class Blob {
-  constructor(x, y, radius, upperLimit, lowerLimit) {
+  constructor(x, y, radius, upperLimit, lowerLimit, noiseOffset) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.upperLimit = upperLimit;
     this.lowerLimit = lowerLimit;
+    this.noiseOffset = noiseOffset;
   }
 }
