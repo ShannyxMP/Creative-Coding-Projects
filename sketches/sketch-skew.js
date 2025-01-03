@@ -1,41 +1,53 @@
 const canvasSketch = require("canvas-sketch");
 const math = require("canvas-sketch-util/math");
+const random = require("canvas-sketch-util/random");
 
 const settings = {
   dimensions: [1080, 1080],
+  animate: true,
 };
 
-const sketch = () => {
+const sketch = ({ width, height }) => {
   let x, y, w, h;
+
+  const num = 20; // Number of rectangles to be drawn
+  const degrees = -30; // Slant of rectangle
+
+  const rects = [];
+
+  for (let i = 1; i < num; i++) {
+    x = random.range(0, width);
+    y = random.range(0, height);
+    w = random.range(200, 600);
+    h = random.range(40, 200);
+
+    rects.push({ x, y, w, h });
+  }
 
   return ({ context, width, height }) => {
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
-    x = width * 0.5;
-    y = height * 0.5;
-    w = width * 0.6;
-    h = height * 0.1;
-    degrees = -45;
+    rects.forEach((rect) => {
+      const { x, y, w, h } = rect; // Destructure the 'rect' object
 
-    context.save();
-    context.translate(x, y);
+      context.save();
 
-    context.strokeStyle = "blue";
+      context.translate(x, y);
 
-    drawSkewedRect({ context, w, h, degrees });
+      context.strokeStyle = "blue";
+      drawSkewedRect({ context, w, h, degrees });
 
-    context.restore();
+      context.restore();
+    });
   };
 };
 
 const drawSkewedRect = ({ context, w, h, degrees }) => {
   const angle = math.degToRad(degrees);
-
-  const rx = Math.cos(angle) * w; //? Why do we need to '*w', why not '+w'?
+  const rx = Math.cos(angle) * w;
   const ry = Math.sign(angle) * w;
 
-  // context.save(); //? Is calling the 'context.save()' & 'context.restore()' necessary if you're already calling it within the sketch function, before and after you call 'drawSkewedRect()'?
   context.translate(rx * -0.5, (h + ry) * -0.5);
 
   // Creating rectangle a stroke at a time
@@ -47,8 +59,6 @@ const drawSkewedRect = ({ context, w, h, degrees }) => {
   context.lineTo(0, 0);
   context.closePath();
   context.stroke();
-
-  // context.restore();
 };
 
 canvasSketch(sketch, settings);
