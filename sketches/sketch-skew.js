@@ -3,12 +3,19 @@ const math = require("canvas-sketch-util/math");
 const random = require("canvas-sketch-util/random");
 const Color = require("canvas-sketch-util/Color"); // To use offsetHSL method ('converts': allows RGBA -> to be further manipulated with HSL)
 const risoColors = require("riso-colors"); // Provides a predefined palette of vibrant colors often used in print design
+
+const seed = random.getRandomSeed(); // Favourable seeds: '723624', '368372', '550799', '948015'
+console.log(seed);
+
 const settings = {
   dimensions: [1080, 1080],
   animate: true,
+  name: seed, // Ctrl + S will save image of particular art with seed as the name <-- so that you can replicate the seed again
 };
 
 const sketch = ({ width, height }) => {
+  random.setSeed(seed); // Can be a number or string or variable
+
   let x, y, w, h, fill, stroke, blend; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
 
   const num = 40; // Number of rectangles to be drawn
@@ -60,6 +67,7 @@ const sketch = ({ width, height }) => {
 
     rects.forEach((rect) => {
       const { x, y, w, h, fill, stroke, blend } = rect; // Destructure the rectangle properties for easier access
+
       let shadowColor = Color.offsetHSL(fill, 0, 0, -20);
       shadowColor.rgba[3] = 0.5; // Sets the shadow's alpha (transparency) to 50%
 
@@ -89,6 +97,16 @@ const sketch = ({ width, height }) => {
       context.stroke();
 
       context.restore(); // Restore the canvas state to avoid affecting other rectangles
+
+      // Update rectangle positioning:
+      const n1D = random.noise1D(x, 0.001, 0.3);
+      rect.x += n1D + Math.cos(math.degToRad(degrees));
+      rect.y += n1D + Math.cos(math.degToRad(degrees));
+      // Conditionals if objects reach end of canvas (wrap):
+      if (rect.x <= 0) rect.x = width;
+      if (rect.x >= width) rect.x = 0;
+      if (rect.y <= 0) rect.y = height;
+      if (rect.y >= height) rect.y = 0;
     });
 
     context.restore(); // Ensures no clipping mask affects subsequent draws
