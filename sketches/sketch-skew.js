@@ -20,6 +20,14 @@ const sketch = ({ width, height }) => {
 
   const bgColor = random.pick(risoColors).hex; // Background color picked randomly from the Riso palette
 
+  // Object for clipping mask:
+  const mask = {
+    radius: width * 0.4,
+    sides: 6,
+    x: width * 0.5,
+    y: height * 0.5,
+  };
+
   for (let i = 1; i < num; i++) {
     x = random.range(0, width); // Random X position within canvas width
     y = random.range(0, height); // Random Y position
@@ -39,13 +47,24 @@ const sketch = ({ width, height }) => {
     context.fillStyle = bgColor;
     context.fillRect(0, 0, width, height);
 
+    // Clipping objects within a polygon:
+    context.save(); // Note: restore() is after rectangle objects are drawn
+
+    context.translate(mask.x, mask.y);
+
+    drawPolygon({ context, radius: mask.radius, sides: mask.sides });
+
+    context.clip(); // Polygon becomes a clipping mask - Note: context.restore() not used right after (instead it is placed below rectangle objects are drawn) or else the mask goes away
+    /* Consequence of no restore() is that the translate() coded earlier affects the location in which the objects are drawn
+    That is why there is a second translate() within the rects.forEach function. */
+
     rects.forEach((rect) => {
       const { x, y, w, h, fill, stroke, blend } = rect; // Destructure the rectangle properties for easier access
       let shadowColor = Color.offsetHSL(fill, 0, 0, -20);
       shadowColor.rgba[3] = 0.5; // Sets the shadow's alpha (transparency) to 50%
 
       context.save();
-
+      context.translate(-mask.x, -mask.y); // Explained at clip() --> to cancel out the translate(mask.x, mask.y);
       context.translate(x, y); // Move the origin to the rectangle's position
 
       context.strokeStyle = stroke;
@@ -71,6 +90,25 @@ const sketch = ({ width, height }) => {
 
       context.restore(); // Restore the canvas state to avoid affecting other rectangles
     });
+
+    context.restore(); // Ensures no clipping mask affects subsequent draws
+
+    // Polygon outline:
+    context.save();
+    context.translate(mask.x, mask.y);
+    context.lineWidth = 20;
+
+    drawPolygon({
+      context,
+      radius: mask.radius - context.lineWidth,
+      sides: mask.sides,
+    });
+
+    context.globalCompositeOperation = "color-burn";
+    context.strokeStyle = rectColors[0].hex;
+    context.stroke();
+
+    context.restore();
   };
 };
 
@@ -84,10 +122,26 @@ const drawSkewedRect = ({ context, w, h, degrees }) => {
   // Draw the rectangle one line at a time:
   context.beginPath();
   context.moveTo(0, 0);
+
   context.lineTo(rx, ry);
   context.lineTo(rx, ry + h);
   context.lineTo(0, h);
   context.lineTo(0, 0);
+
+  context.closePath();
+};
+
+const drawPolygon = ({ context, radius, sides }) => {
+  const slice = (Math.PI * 2) / sides;
+
+  context.beginPath();
+  context.moveTo(0, -radius);
+
+  for (let i = 1; i < sides; i++) {
+    const theta = i * slice - math.degToRad(90); // Subtracting -90degrees OR '-Math.PI * 0.5' <-- why does the second option work?
+    context.lineTo(Math.cos(theta) * radius, Math.sin(theta) * radius);
+  }
+
   context.closePath();
 };
 
