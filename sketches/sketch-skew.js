@@ -1,10 +1,12 @@
+//** NOTES to fix: n1D introduced, however, objects reached a point of stationary -- tried to introduced wrap to no success
+
 const canvasSketch = require("canvas-sketch");
 const math = require("canvas-sketch-util/math");
 const random = require("canvas-sketch-util/random");
 const Color = require("canvas-sketch-util/Color"); // To use offsetHSL method ('converts': allows RGBA -> to be further manipulated with HSL)
 const risoColors = require("riso-colors"); // Provides a predefined palette of vibrant colors often used in print design
 
-const seed = random.getRandomSeed(); // Favourable seeds: '723624', '368372', '550799', '948015'
+const seed = random.getRandomSeed(); // Favourable seeds: '664120', '723624', '368372', '550799', '948015', '361388', '155393', '515933'
 console.log(seed);
 
 const settings = {
@@ -14,9 +16,9 @@ const settings = {
 };
 
 const sketch = ({ width, height }) => {
-  random.setSeed(seed); // Can be a number or string or variable
+  random.setSeed("664120"); // TO CHANGE BACK TO 'seed' // Can be a number or string or variable
 
-  let x, y, w, h, fill, stroke, blend; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
+  let x, y, w, h, fill, stroke, blend, dir; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
 
   const num = 40; // Number of rectangles to be drawn
   const degrees = -30; // Skew angle for the rectangles in degrees
@@ -40,6 +42,7 @@ const sketch = ({ width, height }) => {
     y = random.range(0, height); // Random Y position
     w = random.range(600, width); // Random rectangle width
     h = random.range(40, 200); // Random rectangle height
+    dir = random.value();
 
     stroke = random.pick(rectColors).hex; // Random stroke color from the two selected Riso colors
     fill = random.pick(rectColors).hex; // Random fill color from the two selected Riso colors
@@ -47,7 +50,7 @@ const sketch = ({ width, height }) => {
     // Note: Back ticks (``) are used here so you can add variables within */
     blend = random.value() > 0.5 ? "overlay" : "source-over"; // Randomly assigns one of two blending modes for visual variety
 
-    rects.push({ x, y, w, h, fill, stroke, blend }); // Adds a rectangle object with its properties to the array
+    rects.push({ x, y, w, h, fill, stroke, blend, dir }); // Adds a rectangle object with its properties to the array
   }
 
   return ({ context, width, height }) => {
@@ -66,7 +69,7 @@ const sketch = ({ width, height }) => {
     That is why there is a second translate() within the rects.forEach function. */
 
     rects.forEach((rect) => {
-      const { x, y, w, h, fill, stroke, blend } = rect; // Destructure the rectangle properties for easier access
+      const { x, y, w, h, fill, stroke, blend, dir } = rect; // Destructure the rectangle properties for easier access
 
       let shadowColor = Color.offsetHSL(fill, 0, 0, -20);
       shadowColor.rgba[3] = 0.5; // Sets the shadow's alpha (transparency) to 50%
@@ -100,13 +103,19 @@ const sketch = ({ width, height }) => {
 
       // Update rectangle positioning:
       const n1D = random.noise1D(x, 0.001, 0.3);
-      rect.x += n1D + Math.cos(math.degToRad(degrees));
-      rect.y += n1D + Math.cos(math.degToRad(degrees));
+      if (dir < 0.3) {
+        return;
+      } else if (dir >= 0.3) {
+        rect.x += (55 / 90) * n1D * 10;
+        rect.y -= (30 / 90) * n1D * 10;
+      }
+      /*
       // Conditionals if objects reach end of canvas (wrap):
       if (rect.x <= 0) rect.x = width;
       if (rect.x >= width) rect.x = 0;
       if (rect.y <= 0) rect.y = height;
       if (rect.y >= height) rect.y = 0;
+      */
     });
 
     context.restore(); // Ensures no clipping mask affects subsequent draws
