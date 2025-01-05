@@ -1,5 +1,3 @@
-//** NOTES to fix: n1D introduced, however, objects reached a point of stationary -- tried to introduced wrap to no success
-
 const canvasSketch = require("canvas-sketch");
 const math = require("canvas-sketch-util/math");
 const random = require("canvas-sketch-util/random");
@@ -15,10 +13,19 @@ const settings = {
   name: seed, // Ctrl + S will save image of particular art with seed as the name <-- so that you can replicate the seed again
 };
 
-const sketch = ({ width, height }) => {
-  random.setSeed("664120"); // TO CHANGE BACK TO 'seed' // Can be a number or string or variable
+// Utility function for calculating movement/skew components
+const getMovementComponents = (degrees) => {
+  const angle = math.degToRad(degrees);
+  return {
+    xFraction: Math.cos(angle),
+    yFraction: Math.sin(angle),
+  };
+};
 
-  let x, y, w, h, fill, stroke, blend, dir; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
+const sketch = ({ width, height }) => {
+  random.setSeed("664120"); //!!! TO CHANGE BACK TO 'seed' // Can be a number or string or variable
+
+  let x, y, w, h, fill, stroke, blend, dir, speed; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
 
   const num = 40; // Number of rectangles to be drawn
   const degrees = -30; // Skew angle for the rectangles in degrees
@@ -42,15 +49,14 @@ const sketch = ({ width, height }) => {
     y = random.range(0, height); // Random Y position
     w = random.range(600, width); // Random rectangle width
     h = random.range(40, 200); // Random rectangle height
-    dir = random.value();
+    dir = random.value(); // Determinant for direction of rectangles
+    speed = random.range(1, 10); // Determines speed of movement
 
     stroke = random.pick(rectColors).hex; // Random stroke color from the two selected Riso colors
     fill = random.pick(rectColors).hex; // Random fill color from the two selected Riso colors
-    /*ALTERNATIVELY: fill = `rgba(${random.range(0, 255)}, ${random.range(0, 255)}, ${random.range(0, 255)}, 1)`; 
-    // Note: Back ticks (``) are used here so you can add variables within */
     blend = random.value() > 0.5 ? "overlay" : "source-over"; // Randomly assigns one of two blending modes for visual variety
 
-    rects.push({ x, y, w, h, fill, stroke, blend, dir }); // Adds a rectangle object with its properties to the array
+    rects.push({ x, y, w, h, fill, stroke, blend, dir, speed }); // Adds a rectangle object with its properties to the array
   }
 
   return ({ context, width, height }) => {
@@ -64,24 +70,21 @@ const sketch = ({ width, height }) => {
 
     drawPolygon({ context, radius: mask.radius, sides: mask.sides });
 
-    context.clip(); // Polygon becomes a clipping mask - Note: context.restore() not used right after (instead it is placed below rectangle objects are drawn) or else the mask goes away
-    /* Consequence of no restore() is that the translate() coded earlier affects the location in which the objects are drawn
-    That is why there is a second translate() within the rects.forEach function. */
+    context.clip(); // Polygon becomes a clipping mask
 
     rects.forEach((rect) => {
-      const { x, y, w, h, fill, stroke, blend, dir } = rect; // Destructure the rectangle properties for easier access
+      const { x, y, w, h, fill, stroke, blend, dir, speed } = rect; // Destructure the rectangle properties for easier access
 
       let shadowColor = Color.offsetHSL(fill, 0, 0, -20);
       shadowColor.rgba[3] = 0.5; // Sets the shadow's alpha (transparency) to 50%
 
       context.save();
-      context.translate(-mask.x, -mask.y); // Explained at clip() --> to cancel out the translate(mask.x, mask.y);
-      context.translate(x, y); // Move the origin to the rectangle's position
+      context.translate(-mask.x, -mask.y);
+      context.translate(x, y);
 
       context.strokeStyle = stroke;
       context.fillStyle = fill;
       context.lineWidth = 10;
-      // Drop shadow settings:
       context.shadowColor = Color.style(shadowColor.rgba);
       context.shadowOffsetX = -10;
       context.shadowOffsetY = 20;
@@ -89,33 +92,34 @@ const sketch = ({ width, height }) => {
       drawSkewedRect({ context, w, h, degrees });
 
       context.stroke();
-      context.shadowColor = null; // To remove double-shadows generated for both stroke() and fill() - this is deliberately beetween to avoid applying it to subsequent fill()
-      context.globalCompositeOperation = blend; // Deliberately placed before the fill() function
+      context.shadowColor = null;
+      context.globalCompositeOperation = blend;
       context.fill();
-      context.globalCompositeOperation = "source-over"; // Resets the blending mode back to 'source-over'
+      context.globalCompositeOperation = "source-over";
 
-      // Adding another thin line over the rectangles
+      // Adding another thin line over the rectangles:
       context.lineWidth = 2;
       context.strokeStyle = "black";
       context.stroke();
 
-      context.restore(); // Restore the canvas state to avoid affecting other rectangles
+      context.restore();
 
       // Update rectangle positioning:
-      const n1D = random.noise1D(x, 0.001, 0.3);
-      if (dir < 0.3) {
-        return;
-      } else if (dir >= 0.3) {
-        rect.x += (55 / 90) * n1D * 10;
-        rect.y -= (30 / 90) * n1D * 10;
+      if (dir >= 0.1) {
+        const { xFraction, yFraction } = getMovementComponents(-30);
+        rect.x += xFraction * speed;
+        rect.y += yFraction * speed;
       }
-      /*
-      // Conditionals if objects reach end of canvas (wrap):
-      if (rect.x <= 0) rect.x = width;
-      if (rect.x >= width) rect.x = 0;
-      if (rect.y <= 0) rect.y = height;
-      if (rect.y >= height) rect.y = 0;
-      */
+
+      // Rectangles to bounce back if out of canvas:
+      if (rect.x > width || rect.x < 0) {
+        rect.x = Math.max(0, Math.min(rect.x, width)); // Ensures rectangles remain within bounds
+        rect.speed *= -1; // Reverse direction
+      }
+      if (rect.y > height || rect.y < 0) {
+        rect.y = Math.max(0, Math.min(rect.y, height));
+        rect.speed *= -1;
+      }
     });
 
     context.restore(); // Ensures no clipping mask affects subsequent draws
@@ -140,21 +144,14 @@ const sketch = ({ width, height }) => {
 };
 
 const drawSkewedRect = ({ context, w, h, degrees }) => {
-  const angle = math.degToRad(degrees);
-  const rx = Math.cos(angle) * w; // Horizontal offset based on the skew angle and width
-  const ry = Math.sin(angle) * w; // Vertical offset based on the sine of the skew angle. This creates a proportional skew effect rather than a binary flip (as with Math.sign()), resulting in a smoother and more dynamic skew
+  const { xFraction: rx, yFraction: ry } = getMovementComponents(degrees);
+  context.translate(rx * -0.5, (h + ry * w) * -0.5);
 
-  context.translate(rx * -0.5, (h + ry) * -0.5); // Centers the skewed rectangle at the current origin
-
-  // Draw the rectangle one line at a time:
   context.beginPath();
   context.moveTo(0, 0);
-
-  context.lineTo(rx, ry);
-  context.lineTo(rx, ry + h);
+  context.lineTo(rx * w, ry * w);
+  context.lineTo(rx * w, ry * w + h);
   context.lineTo(0, h);
-  context.lineTo(0, 0);
-
   context.closePath();
 };
 
@@ -165,7 +162,7 @@ const drawPolygon = ({ context, radius, sides }) => {
   context.moveTo(0, -radius);
 
   for (let i = 1; i < sides; i++) {
-    const theta = i * slice - math.degToRad(90); // Subtracting -90degrees OR '-Math.PI * 0.5' <-- why does the second option work?
+    const theta = i * slice - math.degToRad(90);
     context.lineTo(Math.cos(theta) * radius, Math.sin(theta) * radius);
   }
 
