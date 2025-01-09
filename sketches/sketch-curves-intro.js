@@ -2,14 +2,22 @@ const canvasSketch = require("canvas-sketch");
 
 const settings = {
   dimensions: [1080, 1080],
+  animate: true,
 };
 
-const sketch = () => {
-  const points = [
+let elCanvas;
+let points;
+
+const sketch = ({ canvas }) => {
+  points = [
     new Point({ x: 200, y: 540 }),
     new Point({ x: 400, y: 300, control: true }),
     new Point({ x: 880, y: 540 }),
   ];
+
+  canvas.addEventListener("mousedown", onMouseDown);
+
+  elCanvas = canvas;
 
   return ({ context, width, height }) => {
     context.fillStyle = "white";
@@ -31,6 +39,37 @@ const sketch = () => {
   };
 };
 
+const onMouseDown = (event) => {
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+
+  const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width; // 'offsetWidth' is the true width of the canvas regardless of where the canvas is on the screen or how big it is
+  const y = (event.offsetY / elCanvas.offsetHeight) * elCanvas.height;
+
+  points.forEach((point) => {
+    point.isDragging = point.hitTest(x, y);
+  });
+};
+
+const onMouseMove = (event) => {
+  const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width;
+  const y = (event.offsetY / elCanvas.offsetHeight) * elCanvas.height;
+
+  points.forEach((point) => {
+    if (point.isDragging) {
+      point.x = x;
+      point.y = y;
+    }
+  });
+};
+
+const onMouseUp = () => {
+  window.removeEventListener("mousemove", onMouseMove);
+  window.removeEventListener("mouseup", onMouseUp);
+};
+
+canvasSketch(sketch, settings);
+
 class Point {
   constructor({ x, y, control = false }) {
     this.x = x;
@@ -49,6 +88,12 @@ class Point {
 
     context.restore();
   }
-}
 
-canvasSketch(sketch, settings);
+  hitTest(x, y) {
+    const dx = this.x - x;
+    const dy = this.y - y;
+    const dd = Math.sqrt(dx * dx + dy * dy);
+
+    return dd < 20; // return 'true' when conditions are met
+  }
+}
