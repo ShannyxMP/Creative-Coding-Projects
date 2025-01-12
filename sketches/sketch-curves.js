@@ -1,5 +1,7 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const math = require("canvas-sketch-util/math");
+const colourmap = require("colormap");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -9,7 +11,7 @@ const settings = {
 const sketch = ({ width, height }) => {
   // Define grid:
   const cols = 12;
-  const rows = 6;
+  const rows = 48;
   const numCells = cols * rows;
 
   // grid
@@ -24,19 +26,29 @@ const sketch = ({ width, height }) => {
 
   const points = [];
 
-  let x, y, n;
+  let x, y, n, lineWidth, color;
   let frequency = 0.002;
   let amplitude = 90;
+
+  const colors = colourmap({
+    colormap: "magma", // 'salinity'
+    nshade: amplitude,
+  });
 
   for (let i = 0; i < numCells; i++) {
     x = (i % cols) * cw;
     y = Math.floor(i / cols) * ch;
 
-    n = random.noise2D(x, y, frequency, amplitude);
+    n = random.noise2D(x, y, frequency, amplitude, color);
     x += n;
     y += n;
 
-    points.push(new Point({ x, y }));
+    lineWidth = math.mapRange(n, -amplitude, amplitude, 2, 20);
+
+    color =
+      colors[Math.floor(math.mapRange(n, -amplitude, amplitude, 0, amplitude))];
+
+    points.push(new Point({ x, y, lineWidth, color }));
   }
 
   return ({ context, width, height }) => {
@@ -46,12 +58,14 @@ const sketch = ({ width, height }) => {
     context.save();
     context.translate(mx, my);
     context.translate(cw * 0.5, ch * 0.5);
-    context.strokeStyle = "red";
+    context.strokeStyle = "red"; //? How is the color chosen, 'magma', being enforced in the canvas if I haven't set the strokeStyle
     context.lineWidth = 4;
+
+    let lastx, lasty;
 
     // Draw lines:
     for (let r = 0; r < rows; r++) {
-      context.beginPath(); //? Why is begin path here?
+      // context.beginPath(); //? Why is begin path here?
 
       for (let c = 0; c < cols - 1; c++) {
         const curr = points[r * cols + c + 0];
@@ -65,14 +79,32 @@ const sketch = ({ width, height }) => {
         const mx = curr.x + (next.x - curr.x) * 0.5;
         const my = curr.y + (next.y - curr.y) * 0.5;
 
+        /*
         // To make points behave in the same way <-- first point was linear
         if (c == 0) context.moveTo(curr.x, curr.y);
         else if (c == cols - 2)
           context.quadraticCurveTo(curr.x, curr.y, next.x, next.y);
         else context.quadraticCurveTo(curr.x, curr.y, mx, my);
+        */
+
+        if (!c) {
+          lastx = curr.x;
+          lasty = curr.y;
+        }
+
+        context.beginPath();
+        context.lineWidth = curr.lineWidth;
+        context.strokeStyle = curr.color;
+
+        context.moveTo(lastx, lasty);
+        context.quadraticCurveTo(curr.x, curr.y, mx, my);
+        context.stroke();
+
+        lastx = mx;
+        lasty = my;
       }
 
-      context.stroke();
+      // context.stroke(); //? Why end path here?
     }
 
     // points.forEach((point) => {
@@ -86,9 +118,11 @@ const sketch = ({ width, height }) => {
 canvasSketch(sketch, settings);
 
 class Point {
-  constructor({ x, y }) {
+  constructor({ x, y, lineWidth, color }) {
     this.x = x;
     this.y = y;
+    this.lineWidth = lineWidth;
+    this.color = color;
   }
 
   draw(context) {
@@ -97,7 +131,7 @@ class Point {
 
     context.beginPath();
     context.arc(0, 0, 10, 0, Math.PI * 2);
-    context.fillStyle = "red";
+    context.fillStyle = "red"; //? How is the color chosen, 'magma', being enforced in the canvas if I haven't set the strokeStyle
     context.fill();
 
     context.restore();
