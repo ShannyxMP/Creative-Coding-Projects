@@ -10,8 +10,8 @@ const settings = {
 
 const sketch = ({ width, height }) => {
   // Define grid:
-  const cols = 12;
-  const rows = 48;
+  const cols = 72;
+  const rows = 8;
   const numCells = cols * rows;
 
   // grid
@@ -43,7 +43,7 @@ const sketch = ({ width, height }) => {
     x += n;
     y += n;
 
-    lineWidth = math.mapRange(n, -amplitude, amplitude, 2, 20);
+    lineWidth = math.mapRange(n, -amplitude, amplitude, 0, 5);
 
     color =
       colors[Math.floor(math.mapRange(n, -amplitude, amplitude, 0, amplitude))];
@@ -76,8 +76,8 @@ const sketch = ({ width, height }) => {
         else context.lineTo(point.x, point.y);
         */
 
-        const mx = curr.x + (next.x - curr.x) * 0.5;
-        const my = curr.y + (next.y - curr.y) * 0.5;
+        const mx = curr.x + (next.x - curr.x) * 0.8;
+        const my = curr.y + (next.y - curr.y) * 5.5;
 
         /*
         // To make points behave in the same way <-- first point was linear
@@ -100,8 +100,8 @@ const sketch = ({ width, height }) => {
         context.quadraticCurveTo(curr.x, curr.y, mx, my);
         context.stroke();
 
-        lastx = mx;
-        lasty = my;
+        lastx = mx - (c / cols) * 250;
+        lasty = my - (r / rows) * 250;
       }
 
       // context.stroke(); //? Why end path here?
