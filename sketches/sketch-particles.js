@@ -1,4 +1,5 @@
 const canvasSketch = require("canvas-sketch");
+const random = require("canvas-sketch-util/random");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -12,13 +13,18 @@ let elCanvas;
 
 const sketch = ({ width, height, canvas }) => {
   let x, y, particle;
+  let pos = [];
 
   elCanvas = canvas;
   canvas.addEventListener("mousedown", onMouseDown);
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 200; i++) {
     x = width * 0.5;
     y = height * 0.5;
+
+    random.insideCircle(400, pos); // Populates a random x & y value - ie. a 2D point
+    x += pos[0];
+    y += pos[1];
 
     particle = new Particle({ x, y });
 
