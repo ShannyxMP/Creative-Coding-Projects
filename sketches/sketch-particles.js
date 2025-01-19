@@ -1,6 +1,8 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const math = require("canvas-sketch-util/math");
 const eases = require("eases");
+const colormap = require("colormap");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -9,6 +11,11 @@ const settings = {
 
 const particles = [];
 const cursor = { x: 9999, y: 9999 }; // Store the position of the cursor in an object that is visible on the sketch
+
+const colors = colormap({
+  colormap: "viridis",
+  nshades: 20,
+});
 
 let elCanvas;
 
@@ -69,6 +76,9 @@ const sketch = ({ width, height, canvas }) => {
     context.fillStyle = "black";
     context.fillRect(0, 0, width, height);
 
+    particles.sort((a, b) => a.scale - b.scale); // Removing this line with layer particles based on when they're drawn in the loop
+    // ^ Sorts larger particles to be at the top layer of the canvas
+
     particles.forEach((particle) => {
       particle.update();
       particle.draw(context);
@@ -124,6 +134,8 @@ class Particle {
     this.vy = 0;
 
     this.radius = radius;
+    this.scale = 1;
+    this.color = colors[0];
 
     this.minDist = random.range(100, 200);
     this.pushFactor = random.range(0.01, 0.02);
@@ -135,13 +147,22 @@ class Particle {
     //? Is the update() supposed to precede the draw() in this class? And why?
 
     let dx, dy, dd, distDelta;
+    let idxColor;
 
     // Pull force to the particle (declared before push as it acts constantly):
     dx = this.ix - this.x;
     dy = this.iy - this.y;
+    dd = Math.sqrt(dx * dx + dy * dy);
 
     this.ax = dx * this.pullFactor;
     this.ay = dy * this.pullFactor;
+
+    this.scale = math.mapRange(dd, 0, 200, 1, 5);
+
+    idxColor = Math.floor(
+      math.mapRange(dd, 0, 200, 0, colors.length - 1, true)
+    );
+    this.color = colors[idxColor];
 
     // Push force to the particle:
     dx = this.x - cursor.x;
@@ -172,8 +193,8 @@ class Particle {
     context.translate(this.x, this.y);
 
     context.beginPath();
-    context.arc(0, 0, this.radius, 0, Math.PI * 2);
-    context.fillStyle = "white";
+    context.arc(0, 0, this.radius * this.scale, 0, Math.PI * 2);
+    context.fillStyle = this.color;
     context.fill();
 
     context.restore();
