@@ -125,10 +125,10 @@ class Particle {
 
     this.radius = radius;
 
-    this.minDist = 100;
-    this.pushFactor = 0.02;
-    this.pullFactor = 0.004;
-    this.dampFactor = 0.95; // To have particle eventually revert to original position as opposed to building momentum
+    this.minDist = random.range(100, 200);
+    this.pushFactor = random.range(0.01, 0.02);
+    this.pullFactor = random.range(0.002, 0.006);
+    this.dampFactor = random.range(0.9, 0.95); // To have particle eventually revert to original position as opposed to building momentum
   }
 
   update() {
