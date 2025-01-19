@@ -1,5 +1,6 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const eases = require("eases");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -12,12 +13,20 @@ const cursor = { x: 9999, y: 9999 }; // Store the position of the cursor in an o
 let elCanvas;
 
 const sketch = ({ width, height, canvas }) => {
-  let x, y, particle;
+  let x, y, particle, radius;
   let pos = [];
+
+  const numCircles = 15;
+  const gapCircle = 8;
+  const gapDot = 4;
+  let dotRadius = 12;
+  let cirRadius = 0;
+  const fitRadius = dotRadius;
 
   elCanvas = canvas;
   canvas.addEventListener("mousedown", onMouseDown);
 
+  /* Creates randomised particles:
   for (let i = 0; i < 200; i++) {
     x = width * 0.5;
     y = height * 0.5;
@@ -30,7 +39,32 @@ const sketch = ({ width, height, canvas }) => {
 
     particles.push(particle);
   }
+ */
 
+  // Creates evenly distributed particles:
+  for (let i = 0; i < numCircles; i++) {
+    const circumference = Math.PI * 2 * cirRadius;
+    const numFit = i ? Math.floor(circumference / (fitRadius * 2 + gapDot)) : 1;
+    const fitSlice = (Math.PI * 2) / numFit;
+
+    for (let j = 0; j < numFit; j++) {
+      const theta = fitSlice * j;
+
+      x = Math.cos(theta) * cirRadius;
+      y = Math.sin(theta) * cirRadius;
+
+      x += width * 0.5;
+      y += height * 0.5;
+
+      radius = dotRadius;
+
+      particle = new Particle({ x, y, radius });
+      particles.push(particle);
+    }
+
+    cirRadius += fitRadius * 2 + gapCircle;
+    dotRadius = (1 - eases.quadOut(i / numCircles)) * fitRadius; // WITHOUT 'eases.quadOut()' it changes the size of the particle outwards, *linearly*
+  }
   return ({ context, width, height }) => {
     context.fillStyle = "black";
     context.fillRect(0, 0, width, height);
