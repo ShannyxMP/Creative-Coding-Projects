@@ -6,9 +6,15 @@ const settings = {
 };
 
 const particles = [];
+const cursor = { x: 9999, y: 9999 }; // Store the position of the cursor in an object that is visible on the sketch
 
-const sketch = ({ width, height }) => {
+let elCanvas;
+
+const sketch = ({ width, height, canvas }) => {
   let x, y, particle;
+
+  elCanvas = canvas;
+  canvas.addEventListener("mousedown", onMouseDown);
 
   for (let i = 0; i < 1; i++) {
     x = width * 0.5;
@@ -28,6 +34,33 @@ const sketch = ({ width, height }) => {
       particle.draw(context);
     });
   };
+};
+
+const onMouseDown = (event) => {
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+
+  onMouseMove(event);
+};
+
+const onMouseMove = (event) => {
+  // Calculate the position of the cursor proportional to the scale of the sketch (refer to sketch-curves-intro.js)
+  const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width;
+  const y = (event.offsetY / elCanvas.offsetHeight) * elCanvas.height;
+
+  cursor.x = x; //? Why is this not declared in the particle class?
+  cursor.y = y;
+
+  console.log(cursor);
+};
+
+const onMouseUp = () => {
+  window.removeEventListener("mousemove", onMouseMove);
+  window.removeEventListener("mouseup", onMouseUp);
+
+  // To reset values so that they are not near the particles when not dragging the cursor:
+  cursor.x = 9999;
+  cursor.y = 9999;
 };
 
 canvasSketch(sketch, settings);
@@ -51,16 +84,43 @@ class Particle {
     this.vy = 0;
 
     this.radius = radius;
+
+    this.minDist = 100;
+    this.pushFactor = 0.02;
+    this.pullFactor = 0.004;
+    this.dampFactor = 0.95; // To have particle eventually revert to original position as opposed to building momentum
   }
 
   update() {
     //? Is the update() supposed to precede the draw() in this class? And why?
 
-    // this.ax += 0.001;
+    let dx, dy, dd, distDelta;
+
+    // Pull force to the particle (declared before push as it acts constantly):
+    dx = this.ix - this.x;
+    dy = this.iy - this.y;
+
+    this.ax = dx * this.pullFactor;
+    this.ay = dy * this.pullFactor;
+
+    // Push force to the particle:
+    dx = this.x - cursor.x;
+    dy = this.y - cursor.y;
+    dd = Math.sqrt(dx * dx + dy * dy);
+
+    distDelta = this.minDist - dd;
+
+    if (dd < this.minDist) {
+      this.ax += (dx / dd) * distDelta * this.pushFactor;
+      this.ay += (dy / dd) * distDelta * this.pushFactor;
+    }
 
     // Increment the velocity by the acceleration:
     this.vx += this.ax;
     this.vy += this.ay;
+
+    this.vx *= this.dampFactor;
+    this.vy *= this.dampFactor;
 
     // Increment the position by the velocity:
     this.x += this.vx;
