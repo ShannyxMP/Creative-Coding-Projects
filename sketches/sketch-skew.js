@@ -10,10 +10,10 @@ console.log(seed);
 const settings = {
   dimensions: [1080, 1080],
   animate: true,
-  name: seed, // Ctrl + S will save image of particular art with seed as the name <-- so that you can replicate the seed again
+  name: seed, // Save images with the seed name for reproducibility
 };
 
-// Utility function for calculating movement/skew components
+// Utility function for calculating movement components based on angle
 const getMovementComponents = (degrees) => {
   const angle = math.degToRad(degrees);
   return {
@@ -23,7 +23,7 @@ const getMovementComponents = (degrees) => {
 };
 
 const sketch = ({ width, height }) => {
-  random.setSeed("664120"); //!!! TO CHANGE BACK TO 'seed' // Can be a number or string or variable
+  random.setSeed(seed); // Can be a number or string or variable
 
   let x, y, w, h, fill, stroke, blend, dir, speed; // Variables for rectangle properties: position, size, fill/stroke colors, and blending mode
 
@@ -36,14 +36,15 @@ const sketch = ({ width, height }) => {
 
   const bgColor = random.pick(risoColors).hex; // Background color picked randomly from the Riso palette
 
-  // Object for clipping mask:
+  // Define a clipping mask:
   const mask = {
     radius: width * 0.4,
-    sides: 6,
+    sides: 6, // Number of sides (hexagon)
     x: width * 0.5,
     y: height * 0.5,
   };
 
+  // Create rectangles with random properties
   for (let i = 1; i < num; i++) {
     x = random.range(0, width); // Random X position within canvas width
     y = random.range(0, height); // Random Y position
@@ -90,12 +91,12 @@ const sketch = ({ width, height }) => {
       context.shadowOffsetY = 20;
 
       drawSkewedRect({ context, w, h, degrees });
-
       context.stroke();
+
       context.shadowColor = null;
-      context.globalCompositeOperation = blend;
+      context.globalCompositeOperation = blend; // Set blending mode
       context.fill();
-      context.globalCompositeOperation = "source-over";
+      context.globalCompositeOperation = "source-over"; // Reset blending mode
 
       // Adding another thin line over the rectangles:
       context.lineWidth = 2;
@@ -159,11 +160,11 @@ const drawPolygon = ({ context, radius, sides }) => {
   const slice = (Math.PI * 2) / sides;
 
   context.beginPath();
-  context.moveTo(0, -radius);
+  context.moveTo(0, -radius); // Start at the top
 
   for (let i = 1; i < sides; i++) {
-    const theta = i * slice - math.degToRad(90);
-    context.lineTo(Math.cos(theta) * radius, Math.sin(theta) * radius);
+    const theta = i * slice - math.degToRad(90); // Calculate angle for each vertex
+    context.lineTo(Math.cos(theta) * radius, Math.sin(theta) * radius); // Draw line to vertex
   }
 
   context.closePath();

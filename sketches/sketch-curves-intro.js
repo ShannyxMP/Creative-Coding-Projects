@@ -5,7 +5,7 @@ const settings = {
   animate: true,
 };
 
-let elCanvas;
+let elCanvas; // Reference to the canvas element
 let points;
 
 const sketch = ({ canvas }) => {
@@ -19,21 +19,23 @@ const sketch = ({ canvas }) => {
 
   canvas.addEventListener("mousedown", onMouseDown);
 
-  elCanvas = canvas;
+  elCanvas = canvas; // Save reference to the canvas
 
   return ({ context, width, height }) => {
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
+    // Draw straight lines connecting all points:
     context.strokeStyle = "#999";
     context.beginPath();
-    context.moveTo(points[0].x, points[0].y);
+    context.moveTo(points[0].x, points[0].y); // Start at the first point
 
     for (let i = 1; i < points.length; i++) {
-      context.lineTo(points[i].x, points[i].y);
+      context.lineTo(points[i].x, points[i].y); // Draw lines between points
     }
 
     context.stroke();
+
     /*
     context.beginPath();
     context.moveTo(points[0].x, points[0].y);
@@ -68,6 +70,7 @@ const sketch = ({ canvas }) => {
       const curr = points[i + 0];
       const next = points[i + 1];
 
+      // Calculate mid-point for smoother curves:
       const mx = curr.x + (next.x - curr.x) * 0.5;
       const my = curr.y + (next.y - curr.y) * 0.5;
 
@@ -82,8 +85,13 @@ const sketch = ({ canvas }) => {
       // To make points behave in the same way <-- first point was linear
       if (i == 0) context.moveTo(curr.x, curr.y);
       else if (i == points.length - 2)
-        context.quadraticCurveTo(curr.x, curr.y, next.x, next.y);
-      else context.quadraticCurveTo(curr.x, curr.y, mx, my);
+        context.quadraticCurveTo(
+          curr.x,
+          curr.y,
+          next.x,
+          next.y
+        ); // Draw quadratic curve to the last point
+      else context.quadraticCurveTo(curr.x, curr.y, mx, my); // Draw quadratic curve to the mid-point
     }
 
     context.lineWidth = 4;
@@ -97,25 +105,29 @@ const sketch = ({ canvas }) => {
 };
 
 const onMouseDown = (event) => {
+  // Attach event listeners for drag and release
   window.addEventListener("mousemove", onMouseMove);
   window.addEventListener("mouseup", onMouseUp);
 
+  // Get mouse coordinates relative to canvas size:
   const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width; // 'offsetWidth' is the true width of the canvas regardless of where the canvas is on the screen or how big it is
   const y = (event.offsetY / elCanvas.offsetHeight) * elCanvas.height;
 
-  let hit = false;
+  let hit = false; // Track if a point is clicked
   points.forEach((point) => {
-    point.isDragging = point.hitTest(x, y);
-    if (!hit && point.isDragging) hit = true; // In case nothing was hit, you create a new point
+    point.isDragging = point.hitTest(x, y); // Check if the mouse is over a point
+    if (!hit && point.isDragging) hit = true; // Flag as hit if a point is found
   });
 
-  if (!hit) points.push(new Point({ x, y })); // You add more points here and keep extending the curve
+  if (!hit) points.push(new Point({ x, y })); // In case nothing was hit, you create a new point - you add more points here and keep extending the curve
 };
 
 const onMouseMove = (event) => {
+  // Get mouse coordinates relative to canvas:
   const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width;
   const y = (event.offsetY / elCanvas.offsetHeight) * elCanvas.height;
 
+  // Update position of dragged points
   points.forEach((point) => {
     if (point.isDragging) {
       point.x = x;
@@ -135,7 +147,7 @@ class Point {
   constructor({ x, y, control = false }) {
     this.x = x;
     this.y = y;
-    this.control = control;
+    this.control = control; // Indicates if the point is a control point
   }
 
   draw(context) {
@@ -144,17 +156,18 @@ class Point {
 
     context.beginPath();
     context.arc(0, 0, 10, 0, Math.PI * 2);
-    context.fillStyle = this.control ? "red" : "black";
+    context.fillStyle = this.control ? "red" : "black"; // Color based on control status
     context.fill();
 
     context.restore();
   }
 
+  // Check if a point is hit by the mouse
   hitTest(x, y) {
     const dx = this.x - x;
     const dy = this.y - y;
     const dd = Math.sqrt(dx * dx + dy * dy);
 
-    return dd < 20; // return 'true' when conditions are met
+    return dd < 20; // Return true if within hit radius
   }
 }
