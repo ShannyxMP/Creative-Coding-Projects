@@ -1,7 +1,11 @@
 const canvasSketch = require("canvas-sketch");
+const random = require("canvas-sketch-util/random");
+//TODO: const math = require("canvas-sketch-util/math");
+//TODO: const colormap = require("colormap");
 
 const settings = {
   dimensions: [1080, 1080],
+  animate: true,
 };
 
 const sketch = ({ context, width, height }) => {
@@ -25,8 +29,16 @@ const sketch = ({ context, width, height }) => {
   let offset = 25; // To shift each row horizontally to create a diamond shape
   let x, y, color;
   let fox, foy, lox, loy; // Define first orb & last orb's: x and y positions, and then use that to create an even margin that centres the drawing regardless of size
+  let frequency = 0.002;
+  let amplitude = 90;
 
   color = "blue";
+  /* TODO: Integrate colormap later
+  const colors = colormap({
+    colormap: "salinity",
+    nshade: amplitude,
+  });
+  */
 
   // Correct the Orb initialization
   // orbs.push(new Orb({ x: tx, y: ty, radius: 10, color }));
@@ -36,6 +48,15 @@ const sketch = ({ context, width, height }) => {
     for (j = 0; j < rows; j++) {
       x = cw * i + j * offset;
       y = ch * j;
+
+      /* TODO: for the colormap:
+      n = random.noise2D(x, y, frequency, amplitude, color);
+
+      color =
+        colors[
+          Math.floor(math.mapRange(n, -amplitude, amplitude, 0, amplitude))
+        ];
+      */
 
       orbs.push(new Orb({ x, y, radius: 10, color }));
     }
@@ -56,7 +77,7 @@ const sketch = ({ context, width, height }) => {
   const mx = (width - -tb) * 0.5;
   const my = (height - -ta) * 0.5;
 
-  return ({ context, width, height }) => {
+  return ({ context, width, height, frame }) => {
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
@@ -64,6 +85,16 @@ const sketch = ({ context, width, height }) => {
     context.translate(mx, my);
 
     orbs.forEach((orb) => {
+      n = random.noise2D(
+        orb.ix + frame * 3,
+        orb.iy,
+        frequency,
+        amplitude,
+        color
+      );
+      orb.x = orb.ix + n;
+      orb.y = orb.iy + n;
+
       orb.draw(context);
     });
 
