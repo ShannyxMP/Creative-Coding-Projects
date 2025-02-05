@@ -1,7 +1,7 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
-//TODO: const math = require("canvas-sketch-util/math");
-//TODO: const colormap = require("colormap");
+const math = require("canvas-sketch-util/math");
+const colormap = require("colormap");
 
 const settings = {
   dimensions: [1080, 1080],
@@ -11,8 +11,8 @@ const settings = {
 const sketch = ({ context, width, height }) => {
   // Defining variables:
   // Define grid:
-  const cols = 20;
-  const rows = 10;
+  const cols = 25;
+  const rows = 20;
   const numCells = cols * rows;
   // Grid scale:
   const gw = width * 0.8;
@@ -20,9 +20,6 @@ const sketch = ({ context, width, height }) => {
   // Cells:
   const cw = gw / cols;
   const ch = gh / rows;
-  // Margin:
-  // const mx = (width - gw) * 0.5;
-  // const my = (height - gh) * 0.5;
 
   const orbs = [];
 
@@ -32,16 +29,10 @@ const sketch = ({ context, width, height }) => {
   let frequency = 0.002;
   let amplitude = 90;
 
-  color = "blue";
-  /* TODO: Integrate colormap later
   const colors = colormap({
-    colormap: "salinity",
+    colormap: "phase",
     nshade: amplitude,
   });
-  */
-
-  // Correct the Orb initialization
-  // orbs.push(new Orb({ x: tx, y: ty, radius: 10, color }));
 
   // Populate orbs with offset for each row:
   for (i = 0; i < cols; i++) {
@@ -49,14 +40,14 @@ const sketch = ({ context, width, height }) => {
       x = cw * i + j * offset;
       y = ch * j;
 
-      /* TODO: for the colormap:
       n = random.noise2D(x, y, frequency, amplitude, color);
 
       color =
         colors[
-          Math.floor(math.mapRange(n, -amplitude, amplitude, 0, amplitude))
+          Math.floor(
+            math.mapRange(n, -amplitude, amplitude, 0, amplitude * 0.8)
+          )
         ];
-      */
 
       orbs.push(new Orb({ x, y, radius: 10, color }));
     }
@@ -78,7 +69,7 @@ const sketch = ({ context, width, height }) => {
   const my = (height - -ta) * 0.5;
 
   return ({ context, width, height, frame }) => {
-    context.fillStyle = "white";
+    context.fillStyle = "black";
     context.fillRect(0, 0, width, height);
 
     context.save();
@@ -127,6 +118,4 @@ class Orb {
 
     context.restore();
   }
-
-  // TODO: update positions to simulate 2D noise that ripple out, like sketch-04.js
 }
