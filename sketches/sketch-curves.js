@@ -14,13 +14,15 @@ const sketch = ({ width, height }) => {
   const rows = 8;
   const numCells = cols * rows;
 
-  // grid
+  // Grid
   const gw = width * 0.8;
   const gh = height * 0.8;
-  // cell
+
+  // Cell
   const cw = gw / cols;
   const ch = gh / rows;
-  // margin
+
+  // Margin
   const mx = (width - gw) * 0.5;
   const my = (height - gh) * 0.5;
 
@@ -31,11 +33,12 @@ const sketch = ({ width, height }) => {
   let amplitude = 90;
 
   const colors = colourmap({
-    colormap: "magma", // 'salinity'
-    nshade: amplitude,
+    colormap: "magma", // ALTERNATIVE: 'salinity'
+    nshade: amplitude, // Number of shades in the colormap (mapped to amplitude)
   });
 
   for (let i = 0; i < numCells; i++) {
+    // Calculate initial position of the point:
     x = (i % cols) * cw;
     y = Math.floor(i / cols) * ch;
 
@@ -43,8 +46,8 @@ const sketch = ({ width, height }) => {
     // x += n;
     // y += n;
 
+    // Determine the line width and color based on noise
     lineWidth = math.mapRange(n, -amplitude, amplitude, 0, 5);
-
     color =
       colors[Math.floor(math.mapRange(n, -amplitude, amplitude, 0, amplitude))];
 
@@ -56,15 +59,15 @@ const sketch = ({ width, height }) => {
     context.fillRect(0, 0, width, height);
 
     context.save();
-    context.translate(mx, my);
-    context.translate(cw * 0.5, ch * 0.5);
-    context.strokeStyle = "red"; //? How is the color chosen, 'magma', being enforced in the canvas if I haven't set the strokeStyle
+    context.translate(mx, my); // Translate to apply margins
+    context.translate(cw * 0.5, ch * 0.5); // Center each cell's origin
+    context.strokeStyle = "red"; // Note: you have set strokeStyle() further down
     context.lineWidth = 4;
 
     // Update positions:
     points.forEach((point) => {
       n = random.noise2D(
-        point.ix + frame * 3,
+        point.ix + frame * 3, // Adds dynamic movement over time
         point.iy,
         frequency,
         amplitude,
@@ -74,21 +77,23 @@ const sketch = ({ width, height }) => {
       point.y = point.iy + n;
     });
 
-    let lastx, lasty;
+    let lastx, lasty; // Variables to store the last point's position
 
-    // Draw lines:
+    // Draw lines for each row:
     for (let r = 0; r < rows; r++) {
-      // context.beginPath(); //? Why is begin path here?
+      // context.beginPath();
 
       for (let c = 0; c < cols - 1; c++) {
+        // Get the current and next points
         const curr = points[r * cols + c + 0];
         const next = points[r * cols + c + 1];
 
         /*
-        if (!c) context.moveTo(point.x, point.y); //? '!c' OR 'c == 0'?
+        if (!c) context.moveTo(point.x, point.y); // '!c' OR 'c == 0'
         else context.lineTo(point.x, point.y);
         */
 
+        // Calculate a midpoint between the current and next points
         const mx = curr.x + (next.x - curr.x) * 0.8;
         const my = curr.y + (next.y - curr.y) * 5.5;
 
@@ -100,24 +105,26 @@ const sketch = ({ width, height }) => {
         else context.quadraticCurveTo(curr.x, curr.y, mx, my);
         */
 
+        // On the first point of each row, initialize `lastx` and `lasty`
         if (!c) {
           lastx = curr.x;
           lasty = curr.y;
         }
 
+        // Start a new path for each line segment
         context.beginPath();
         context.lineWidth = curr.lineWidth;
         context.strokeStyle = curr.color;
 
+        // Draw a quadratic curve from the last point to the midpoint
         context.moveTo(lastx, lasty);
         context.quadraticCurveTo(curr.x, curr.y, mx, my);
         context.stroke();
 
+        // Update `lastx` and `lasty` for the next iteration
         lastx = mx - (c / cols) * 250;
         lasty = my - (r / rows) * 250;
       }
-
-      // context.stroke(); //? Why end path here?
     }
 
     // points.forEach((point) => {
@@ -137,7 +144,7 @@ class Point {
     this.lineWidth = lineWidth;
     this.color = color;
 
-    // Inital positions:
+    // Inital positions ( for resetting or noise calculations):
     this.ix = x;
     this.iy = y;
   }
@@ -148,7 +155,7 @@ class Point {
 
     context.beginPath();
     context.arc(0, 0, 10, 0, Math.PI * 2);
-    context.fillStyle = "red"; //? How is the color chosen, 'magma', being enforced in the canvas if I haven't set the strokeStyle
+    context.fillStyle = this.color;
     context.fill();
 
     context.restore();
