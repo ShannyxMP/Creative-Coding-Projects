@@ -8,17 +8,23 @@ const settings = {
   animate: true,
 };
 
+// Global variables for interaction and animation:
 let elCanvas;
 let mx, my;
-const cursor = { x: 9999, y: 9999 }; // Store the position of the cursor in an object that is visible on the sketch// Cursor position (initially out of view)
+let isMouseDown = false;
+let transition = 0;
+const rate = 0.001; // Speed of transition
+const cursor = { x: 9999, y: 9999 }; // Store the position of the cursor in an object that is visible on the sketch - initial cursor position (out of view)
 
+/**
+ * Main sketch function that sets up the canvas and initializes objects.
+ */
 const sketch = ({ context, width, height, canvas }) => {
-  // Defining variables:
-  // Define grid:
+  // Define grid dimensions:
   const cols = 50;
   const rows = 50;
   const numCells = cols * rows;
-  // Grid scale:
+  // Define grid scale:
   const gw = width;
   const gh = height * 0.9; // Smaller to compress orbs closer together
   // Cells:
@@ -29,25 +35,26 @@ const sketch = ({ context, width, height, canvas }) => {
 
   let offset = 25; // To shift each row horizontally to create a diamond shape
   let x, y, color;
-  let fox, foy, lox, loy; // Define first orb & last orb's: x and y positions, and then use that to create an even margin that centres the drawing regardless of size
+  let fox, foy, lox, loy; // First orb and last orb's: x and y positions (to create an even margin that centres the drawing regardless of size)
   let frequency = 0.002;
   let amplitude = 90;
 
+  // Generate color palette
   const colors = colormap({
     colormap: "phase",
     nshade: amplitude,
   });
 
-  elCanvas = canvas; // Reference to the canvas element
+  elCanvas = canvas; // Store reference to the canvas element
   canvas.addEventListener("mousedown", onMouseDown); // Add interaction listener
 
-  // Populate orbs with offset for each row:
+  // Populate the grid with orbs
   for (i = 0; i < cols; i++) {
     for (j = 0; j < rows; j++) {
       x = cw * i + j * offset;
       y = ch * j;
 
-      n = random.noise2D(x, y, frequency, amplitude, color);
+      let n = random.noise2D(x, y, frequency, amplitude, color);
 
       color =
         colors[
@@ -60,21 +67,25 @@ const sketch = ({ context, width, height, canvas }) => {
     }
   }
 
-  // To define first orb & last orbs: x and y positions, and then use that to create an even margin that centres the drawing regardless of size
+  // Capture first and last orb positions for centering
   fox = orbs[0].x; // First orb's x pos
   foy = orbs[0].y;
   lox = orbs[numCells - 1].x; // Last orb's x pos
   loy = orbs[numCells - 1].y;
-  console.log(fox, foy, lox, loy);
+  // console.log(fox, foy, lox, loy);
 
-  // To define the margin in order to centre by calculating height and width of the total created orbs
-  const ta = foy - loy; // Height of skewed rectangle
-  const tb = fox - lox; // Width of skewed rectangle
-  console.log(ta, tb);
+  // Calculate margin offsets for centering the orbs in the canvas
+  const ta = foy - loy; // Total height
+  const tb = fox - lox; // Total width
+  // console.log(ta, tb);
 
+  // Margin:
   mx = (width - -tb) * 0.5;
   my = (height - -ta) * 0.5;
 
+  /**
+   * Animation loop that updates and draws the scene.
+   */
   return ({ context, width, height, frame }) => {
     context.fillStyle = "black";
     context.fillRect(0, 0, width, height);
@@ -82,6 +93,22 @@ const sketch = ({ context, width, height, canvas }) => {
     context.save();
     context.translate(mx, my);
 
+    // Adjust transition state based on mouse state
+    if (isMouseDown) {
+      transition += rate; // To slowly uptitrate transitioning once mouse down
+      if (transition >= 1) {
+        transition = 1;
+      }
+    }
+    if (isMouseDown == false) {
+      transition -= rate; // To slowly downtitrate from transion once mouse up
+      if (transition <= 0) {
+        transition = 0;
+      }
+    }
+    // console.log(transition);
+
+    // Update and draw orbs
     orbs.forEach((orb) => {
       n = random.noise2D(
         orb.ix + frame * 3,
@@ -101,13 +128,21 @@ const sketch = ({ context, width, height, canvas }) => {
   };
 };
 
+/**
+ * Handles mouse down event, enabling interaction.
+ */
 const onMouseDown = (event) => {
   window.addEventListener("mousemove", onMouseMove); // Track mouse movement
   window.addEventListener("mouseup", onMouseUp);
 
-  onMouseMove(event); // Trigger movement handler immediately
+  onMouseMove(event); // Update cursor position immediately
+
+  isMouseDown = true; // Mouse is pressed, start uptitrating transition rate
 };
 
+/**
+ * Handles mouse movement, updating the cursor's position relative to the sketch.
+ */
 const onMouseMove = (event) => {
   // Calculate the position of the cursor proportional to the scale of the sketch (refer to sketch-curves-intro.js)
   const x = (event.offsetX / elCanvas.offsetWidth) * elCanvas.width;
@@ -115,21 +150,24 @@ const onMouseMove = (event) => {
 
   cursor.x = x - mx;
   cursor.y = y - my;
-
-  console.log(cursor);
+  // console.log(cursor);
 };
 
+/**
+ * Handles mouse up event, disabling interaction.
+ */
 const onMouseUp = () => {
   window.removeEventListener("mousemove", onMouseMove);
   window.removeEventListener("mouseup", onMouseUp);
 
-  // To reset values so that they are not near the particles when not dragging the cursor:
-  cursor.x = 9999;
-  cursor.y = 9999;
+  isMouseDown = false; // Mouse released, start downtitrating transition
 };
 
 canvasSketch(sketch, settings);
 
+/**
+ * Orb class representing each individual moving orb.
+ */
 class Orb {
   constructor({ x, y, radius, color }) {
     this.x = x;
@@ -142,30 +180,36 @@ class Orb {
     this.iy = y;
     this.iradius = radius;
 
-    // To initialise the mouse interaction
-    this.minDist = 100; //**test**/
-    this.shrink = 8;
+    // Interaction properties
+    this.minDist = 100; // Distance threshold for interaction
   }
 
+  /**
+   * Updates the orb's position based on cursor proximity.
+   */
   update() {
-    let dx, dy, dd, distDelta;
+    let dx = this.x - cursor.x;
+    let dy = this.y - cursor.y;
+    let dd = Math.sqrt(dx * dx + dy * dy); // Distance to cursor
 
-    dx = this.x - cursor.x;
-    dy = this.y - cursor.y;
-    dd = Math.sqrt(dx * dx + dy * dy);
-
+    // If close to cursor, apply force
     if (dd < this.minDist) {
-      // Move the orb slightly toward the cursor
       let force = (this.minDist - dd) * 0.05; // Strength of movement
-      this.x += dx * force;
-      this.y += dy * force;
-    } else {
-      // Smoothly return particles to their original positions
-      this.x += (this.ix - this.x) * 0.05;
-      this.y += (this.iy - this.y) * 0.05;
+      if (isMouseDown == true) {
+        // For orbs to slowly transition to cursor interaction positions
+        this.x += dx * force * transition;
+        this.y += dy * force * 0.1 * transition;
+      } else {
+        // Smoothly revert back to original positions one 'isMouseDown' is false
+        this.x += dx * force * transition;
+        this.y += dy * force * 0.1 * transition;
+      }
     }
   }
 
+  /**
+   * Draws the orb on the canvas.
+   */
   draw(context) {
     context.save();
     context.translate(this.x, this.y);
