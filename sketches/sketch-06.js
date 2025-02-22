@@ -95,13 +95,13 @@ const sketch = ({ context, width, height, canvas }) => {
 
     // Adjust transition state based on mouse state
     if (isMouseDown) {
-      transition += rate; // To slowly uptitrate transitioning once mouse down
+      transition += rate; // To gradually uptitrate transitioning once mouse down
       if (transition >= 1) {
         transition = 1;
       }
     }
     if (isMouseDown == false) {
-      transition -= rate; // To slowly downtitrate from transion once mouse up
+      transition -= rate; // To gradually downtitrate from transition once mouse up
       if (transition <= 0) {
         transition = 0;
       }
