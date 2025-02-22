@@ -3,7 +3,7 @@
 ## Table of contents
 
 - [Overview](#overview)
-  - [Screenshot](#screenshot)
+  - [Screenshots](#screenshot)
 - [My process](#my-process)
   - [Built with](#built-with)
   - [What I learned](#what-i-learned)
@@ -17,7 +17,7 @@
 
 The courses, _Creative Coding: Making Visuals with JavaScript_ & _Creative Coding 2.0 in JS: Animation, Sound, & Color_, created by Bruno Imbrizi was an opportunity to develop visual compositions with programming. My final art projects, _Lava Lamp_ & _Thermal Drift_, attempts to simulate the organic motion of blobs in a lava lamp; the other, to simulate the ocean.
 
-### Screenshot
+### Screenshots
 
 ![Screenshot of Final Project: Lava Lamp](./sketches/output/07/Lava%20Lamp%20-%20ShannyxMP.gif)
 _Note: GIF image is sped up._
@@ -48,13 +48,13 @@ A similar approach was applied to Thermal Drift. In this project, 2D noise was u
 ```js
   // Adjust transition state based on mouse state
   if (isMouseDown) {
-    transition += rate; // To slowly uptitrate transitioning once mouse down
+    transition += rate; // To gradually uptitrate transitioning once mouse down
     if (transition >= 1) {
       transition = 1;
     }
   }
   if (isMouseDown == false) {
-    transition -= rate; // To slowly downtitrate from transion once mouse up
+    transition -= rate; // To gradually downtitrate from transition once mouse up
     if (transition <= 0) {
       transition = 0;
     }
@@ -88,7 +88,7 @@ A similar approach was applied to Thermal Drift. In this project, 2D noise was u
 
 ### Continued development
 
-There were many ideas involving Perlin Noise that I was eager to explore but couldn’t fully implement in my Lava Lamp project. One attempt was to use Perlin Noise to make the blobs appear more fluid-like rather than perfectly circular, allowing them to morph as they moved—but unfortunately, I couldn’t achieve the desired effect. I also experimented with using Perlin Noise to create a more natural color transition for the blobs, but ultimately, I settled for a radial gradient. Thanks to Bruno’s guidance, I learned that this effect could be achieved by integrating 'colormap', an npm package that maps colors based on noise values. As my understanding of visual programming deepens, I hope to revisit these ideas in future projects.
+There were many ideas involving Perlin Noise that I was eager to explore but could not fully implement in my Lava Lamp project. One attempt was to use Perlin Noise to make the blobs appear more fluid-like rather than perfectly circular, allowing them to morph as they moved—but unfortunately, I could not achieve the desired effect. I also experimented with using Perlin Noise to create a more natural color transition for the blobs, but ultimately, I settled for a radial gradient. Thanks to Bruno’s guidance, I learned that this effect could be achieved by integrating 'colormap', an npm package that maps colors based on noise values. As my understanding of visual programming deepens, I hope to revisit these ideas in future projects.
 
 ### Useful resources
 
